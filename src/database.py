@@ -2,15 +2,17 @@ from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
+from config import Config
+
 db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
-    # login = db.Column(db.String(32), nullable=False)
-    # pass_hash = db.Column(db.String(32), nullable=False)
-    # registered = db.Column(db.DateTime, default=datetime.today(), nullable=False)
-    # oauth2_token = db.Column(db.String(32), default="")
+    login = db.Column(db.String(32), nullable=False)
+    pass_hash = db.Column(db.String(32), nullable=False)
+    registered = db.Column(db.DateTime, default=datetime.today(), nullable=False)
+    oauth2_token = db.Column(db.String(32), default="")
     posts = db.relationship('Post', back_populates='user')
     permissions = db.relationship('Permission')
 
@@ -21,8 +23,8 @@ class User(db.Model):
 class Board(db.Model):
     __tablename__ = 'board'
     id = db.Column(db.Integer, primary_key=True)
-    # title = db.Column(db.String(32), nullable=False)
-    # short = db.Column(db.String(32), nullable=False)
+    title = db.Column(db.String(32), nullable=False)
+    short = db.Column(db.String(32), nullable=False)
     posts = db.relationship('Post', back_populates='board')
 
     def __repr__(self):
@@ -36,12 +38,12 @@ class Post(db.Model):
     user = db.relationship('User', back_populates='posts')
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='posts')
-    # children = db.relationship('Post', back_populates='child')
-    # parent_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    # child = db.relationship('Post', back_populates='children')
-    # head = db.Column(db.String(256), nullable=False)
-    # body = db.Column(db.String(65536), nullable=False)
-    # created = db.Column(db.DateTime, default=datetime.today(), nullable=False)
+    #children = db.relationship('Post', back_populates='child')
+    parent_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    #child = db.relationship('Post', back_populates='children')
+    head = db.Column(db.String(256), nullable=False)
+    body = db.Column(db.String(65536), nullable=False)
+    created = db.Column(db.DateTime, default=datetime.today(), nullable=False)
 
     def __repr__(self):
         return "<Post %s>" % self.id
