@@ -1,0 +1,4 @@
+flask_sqlalchemy
+
+bcrypt
+
