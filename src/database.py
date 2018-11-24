@@ -1,4 +1,6 @@
 from datetime import datetime
+import string
+import random
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -6,13 +8,18 @@ from config import Config
 
 db = SQLAlchemy()
 
+def rand_string_wrapper(length):
+    def rand_string():
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(length))
+    return rand_string    
+
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(32), nullable=False)
     pass_hash = db.Column(db.String(32), nullable=False)
     registered = db.Column(db.DateTime, default=datetime.today(), nullable=False)
-    oauth2_token = db.Column(db.String(32), default="")
     posts = db.relationship('Post', back_populates='user')
     permissions = db.relationship('Permission')
 
@@ -59,3 +66,17 @@ class Permission(db.Model):
 
     def __repr__(self):
         return "<Permission %s>" % self.id
+
+
+class Session(db.Model):
+    __tablename__ = 'session'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', back_populates='permissions')
+    token = db.Column(db.String(32), default=rand_string_wrapper(24), nullable=False)
+    opened = db.Column(db.DateTime, default=datetime.today(), nullable=False)
+    ip = db.Column(db.String(32), default='0.0.0.0')
+    user_agent = db.Column(db.String(32), nullable=False)
+
+    def __repr__(self):
+        return "<Session %s>" % self.id

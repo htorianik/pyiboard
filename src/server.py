@@ -1,7 +1,7 @@
 import hashlib
 import random
 import string
-from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
+from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response
 from functools import wraps
 from config import Config
 from src.database import db, User, Post, Board, Permission
@@ -31,6 +31,16 @@ def check_query_args(required_keys):
     return real_decorator
 
 
+def session_checker():
+    def real_decorator(func):
+        @wraps(func)
+        def wrapper():
+            return func()
+
+        return wrapper
+    return real_decorator
+
+
 def rand_string(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
@@ -39,15 +49,7 @@ def rand_string(length):
 def hash_password(login, password):
     return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
 
-
-@app.route('/oauth')
-def oauth_handle():
-    return render_template(
-        'oauth.html', 
-        title='OAuth'
-        )
-
-@app.route('/oauth2')
+@app.route('/authentication')
 @check_query_args({'login', 'password'})
 def oauth2_handle():
     login, password = request.args.get('login'), request.args.get('password')
@@ -62,20 +64,39 @@ def oauth2_handle():
         return jsonify({
             "Response": "There is no user with such login or password"
         })
-    
-    if not valid_user.oauth2_token: 
-        valid_user.oauth2_token = rand_string(32)
 
-    db.session.commit()
+    ip = request.remote_addr
+    user_agent = request.headers.get('User-Agent')
 
-    return redirect('?login=%s&token=%s' % (
-        valid_user.login, 
-        valid_user.oauth2_token
-    ))
+    active_session = Session.query.filter_by(
+        user=valid_user,
+        user_agent=user_agent,
+        ip=ip
+    ).first()
 
-@app.route('/')
-def index_handle():
-    return "<b1>This is index :D</b1>"
+    session_id = None
+    session_token = None
+
+    if active_session:
+        session_id = active_session.id
+        session_token = active_session.token
+    else:
+        new_session = Session(
+            user=valid_user,
+            user_agent=request.headers.get('User-Agent'),
+            ip=request.remote_addr
+        )
+        db.session.add(new_session)
+        db.session.commit()
+        session_id = new_session.id
+        session_token = new_session.token
+
+    response = make_response(redirect('/'))
+    response.set_cookie('session_id', session_id)
+    response.set_cookie('session_token', session_token)
+
+    return response
+
 
 @app.route('/register')
 @check_query_args({'login', 'password'})
@@ -94,10 +115,31 @@ def register_handle():
 
     db.session.add(new_user)
     db.session.commit()
-    return redirect('/oauth2?login=%s&password=%s' % (
+    return redirect('/authentication?login=%s&password=%s' % (
         args.get('login'),
         args.get('password')
         ))
+
+
+@app.route('/')
+@session_checker()
+def index_handle():
+    return "<b1>This is index :D</b1>"
+
+
+@app.route('/registration')
+def registration_handle():
+    return render_template(
+        'register.html',
+        login='Registration'
+    )
+
+@app.route('/login')
+def login_handle():
+    return render_template(
+        'login.html', 
+        title='Login'
+        )
 
 @app.route('/public/<path:filename>')
 def public_handle(filename):
