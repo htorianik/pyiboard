@@ -1,0 +1,36 @@
+@font-face {
+    font-family: Destruction;
+    src: url('../fonts/destruction.ttf');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#main-container {
+    position: relative;
+    text-align: center;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    width: 50%;
+    height: 100%;
+
+    border-width: 2px;
+    border-style: dashed;
+}
+
+#main-container-title {
+    font-size: 72px;
+}
+
+.fullsize-button {
+    width: 70%;
+    height: 60px;
+    font-size: 36px;
+}
+
+

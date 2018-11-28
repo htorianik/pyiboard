@@ -1,4 +1,4 @@
-window.addEventListener('load', ()=>{
+window.addEventListener('load', () => {
     document.getElementById('login-button').addEventListener('click', ()=>{
         const login = document.getElementById('login-input').value
         const password = document.getElementById('password-input').value

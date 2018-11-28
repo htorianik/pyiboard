@@ -4,7 +4,7 @@ import string
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response
 from functools import wraps
 from config import Config
-from src.database import db, User, Post, Board, Permission
+from src.database import db, User, Post, Board, Permission, Session
 
 app = Flask(__name__, template_folder=Config.TEMPLATES_DIR)
 app.config.update(Config.FLASK_CONFIG)
@@ -35,7 +35,25 @@ def session_checker():
     def real_decorator(func):
         @wraps(func)
         def wrapper():
-            return func()
+            session_id = request.cookies.get('session_id')
+            session_token = request.cookies.get('session_token')
+            user_agent = request.headers.get('User-Agent')
+
+            current_session = Session.query.filter_by(
+                id=session_id,
+                token=session_token,
+                user_agent=user_agent
+            ).first()
+
+            print(session_id)
+            print(session_token)
+
+            if not current_session:
+                return jsonify({
+                    "Respose": "Couldn't authorize you :|"
+                })
+            else:
+                return func()
 
         return wrapper
     return real_decorator
@@ -92,8 +110,8 @@ def oauth2_handle():
         session_token = new_session.token
 
     response = make_response(redirect('/'))
-    response.set_cookie('session_id', session_id)
-    response.set_cookie('session_token', session_token)
+    response.set_cookie('session_id', str(session_id).encode('utf-8'))
+    response.set_cookie('session_token', session_token.encode('utf-8'))
 
     return response
 
@@ -105,8 +123,10 @@ def register_handle():
     same_login_user = User.query.filter_by(login=args.get('login')).first()
     if same_login_user:
         return jsonify({
-            "Response": "There is already user with such login"
+            "Response": "Pls create an unique login"
         })
+        
+        return redirect('/register?register_error=true')
 
     new_user = User(
         login=args.get('login'),
@@ -120,6 +140,16 @@ def register_handle():
         args.get('password')
         ))
 
+
+@app.route('/logout')
+@session_checker()
+def logout_handle():
+    response.set_cookie('session_id', str(-1).encode('utf-8'))
+    response.set_cookie('session_token', "None".encode('utf-8'))
+
+    return jsonify({
+        "Reponse": "You loged out :|"
+    })
 
 @app.route('/')
 @session_checker()

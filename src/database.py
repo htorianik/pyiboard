@@ -22,6 +22,7 @@ class User(db.Model):
     registered = db.Column(db.DateTime, default=datetime.today(), nullable=False)
     posts = db.relationship('Post', back_populates='user')
     permissions = db.relationship('Permission')
+    sessions = db.relationship('Session')
 
     def __repr__(self):
         return "<User %s>" % self.id
@@ -72,7 +73,7 @@ class Session(db.Model):
     __tablename__ = 'session'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', back_populates='permissions')
+    user = db.relationship('User', back_populates='sessions')
     token = db.Column(db.String(32), default=rand_string_wrapper(24), nullable=False)
     opened = db.Column(db.DateTime, default=datetime.today(), nullable=False)
     ip = db.Column(db.String(32), default='0.0.0.0')
