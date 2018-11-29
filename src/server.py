@@ -10,14 +10,14 @@ app = Flask(__name__, template_folder=Config.TEMPLATES_DIR)
 app.config.update(Config.FLASK_CONFIG)
 db.init_app(app)
 
+# the root of roots
+GENESIS_POST_ID = 1
+
 def check_query_args(required_keys):
     def real_decorator(func):
         @wraps(func)
-        def wrapper():
+        def wrapper(**argd):
             given_keys = set(request.args.keys())
-            
-            print(given_keys)
-            print(required_keys)
 
             if not required_keys.issubset(given_keys):
                 return jsonify({
@@ -25,7 +25,7 @@ def check_query_args(required_keys):
                     "Missing_arguments": list( required_keys.difference(given_keys) )
                 })
             else:
-                return func()
+                return func(**argd)
 
         return wrapper
     return real_decorator
@@ -34,7 +34,7 @@ def check_query_args(required_keys):
 def session_checker():
     def real_decorator(func):
         @wraps(func)
-        def wrapper():
+        def wrapper(**argd):
             session_id = request.cookies.get('session_id')
             session_token = request.cookies.get('session_token')
             user_agent = request.headers.get('User-Agent')
@@ -45,15 +45,12 @@ def session_checker():
                 user_agent=user_agent
             ).first()
 
-            print(session_id)
-            print(session_token)
-
             if not current_session:
                 return jsonify({
                     "Respose": "Couldn't authorize you :|"
                 })
             else:
-                return func()
+                return func(**argd)
 
         return wrapper
     return real_decorator
@@ -66,6 +63,21 @@ def rand_string(length):
 
 def hash_password(login, password):
     return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
+
+
+######################## FRONT END ############################
+
+def render_board(current_board):
+    boards = Board.query.all()
+    thread_posts = Post.query.filter_by(parent_id=GENESIS_POST_ID, board=current_board).all()
+    return render_template('board.html', boards=boards, current_board=current_board, posts=thread_posts)
+
+
+def render_thread_post_constructor(current_board):
+    boards = Board.query.all()
+    return render_template('thread_post_constructor.html', boards=boards, current_board=current_board)
+
+######################## BACK END #############################
 
 @app.route('/authentication')
 @check_query_args({'login', 'password'})
@@ -154,7 +166,106 @@ def logout_handle():
 @app.route('/')
 @session_checker()
 def index_handle():
-    return "<b1>This is index :D</b1>"
+
+    boards = Board.query.all()
+
+    return render_template('base.html', boards=boards)
+
+
+@app.route('/board/<board_short>')
+@session_checker()
+def board_handle(board_short):
+
+    current_board = Board.query.filter_by(
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return "<h1>There is no such</h1>"
+
+    threads = Post.query.filter_by(
+        parent_id = GENESIS_POST_ID,
+        board_id = current_board.id
+    ).all()
+
+    threads = list(map(lambda thread : thread.dump_to_dict(), threads))
+
+    return render_board(current_board)
+
+
+@app.route('/board/<board_short>/make_post')
+@check_query_args({'parent', 'head', 'body'})
+@session_checker()
+def board_make_post_handle(board_short):
+    current_board = Board.query.filter_by(
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return "<h1>There is no such board :|</h1>"
+
+    parent_post_id = request.args.get('parent')
+    body = request.args.get('body')
+    head = request.args.get('head')
+
+    parent_post = Post.query.filter_by(
+        id=parent_post_id,
+        board=current_board
+    ).first()
+
+    if not parent_post:
+        return "<h1>There is no such post :|</h1>"
+
+    new_post = Post(
+        parent=parent_post,
+        head=head, 
+        body=body,
+        board=current_board
+    )
+    db.session.add(new_post)
+    db.session.commit()
+
+
+@app.route('/board/<board_short>/make_thread_post')
+@check_query_args({'head', 'body'})
+@session_checker()
+def board_make_thred_post(board_short):
+    current_board = Board.query.filter_by(  
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return "<h1>There is no such</h1>"
+
+    body = request.args.get('body')
+    head = request.args.get('head')
+
+    genesis_post = Post.query.filter_by(
+        id=GENESIS_POST_ID
+    ).first()
+
+    new_post = Post(
+        parent=genesis_post,
+        head=head, 
+        body=body,
+        board=current_board
+    )
+    db.session.add(new_post)
+    db.session.commit()
+    return redirect(f'/board/{current_board.short}')
+
+
+@app.route('/board/<board_short>/thread_post_constructor')
+@session_checker()
+def board_thread_post_constructor(board_short):
+    current_board = Board.query.filter_by(  
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return "<h1>There is no such</h1>"
+
+    return render_thread_post_constructor(current_board)
 
 
 @app.route('/registration')
@@ -163,6 +274,7 @@ def registration_handle():
         'register.html',
         login='Registration'
     )
+
 
 @app.route('/login')
 def login_handle():

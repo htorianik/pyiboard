@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <meta type='text/html' charset='utf8'>
+
+        <script type='text/javascript' src='/public/scripts/global.js'></script>
+        {% block addition_requirements %}
+        {% endblock %}
+    </head>
+
+    <body>
+        <header>
+            {% for board in boards %}
+            <div>
+                <a href='/board/{{ board.short }}'>{{ board.title }} - /{{ board.short }} </a>
+            </div>
+            {% endfor %}
+        </header>
+
+        {% block content %}
+        {% endblock %}
+
+        <footer>
+            Footer
+        </footer>
+    </body>
+</html>

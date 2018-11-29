@@ -1,5 +1,5 @@
-from datetime import datetime
 import string
+import datetime
 import random
 
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 db = SQLAlchemy()
+
+def dump_time(t):
+    return t.strftime('%Y-%m-%d %H:%M:%S')
 
 def rand_string_wrapper(length):
     def rand_string():
@@ -19,8 +22,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(32), nullable=False)
     pass_hash = db.Column(db.String(32), nullable=False)
-    registered = db.Column(db.DateTime, default=datetime.today(), nullable=False)
-    posts = db.relationship('Post', back_populates='user')
+    registered = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     permissions = db.relationship('Permission')
     sessions = db.relationship('Session')
 
@@ -42,20 +44,32 @@ class Board(db.Model):
 class Post(db.Model):
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User', back_populates='posts')
+
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='posts')
-    #children = db.relationship('Post', back_populates='child')
+
+    children = db.relationship('Post', back_populates='parent')
     parent_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    #child = db.relationship('Post', back_populates='children')
+    parent = db.relationship('Post', remote_side=[id], back_populates='children')
+    
     head = db.Column(db.String(256), nullable=False)
     body = db.Column(db.String(65536), nullable=False)
-    created = db.Column(db.DateTime, default=datetime.today(), nullable=False)
+    created = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
 
     def __repr__(self):
         return "<Post %s>" % self.id
 
+    def dump_to_dict(self):
+        return {
+            'id': self.id,
+            'board_id': self.board_id,
+            'parent_id': self.parent_id,
+            'children_ids': list(map(lambda child : child.id, self.children)),
+            'board': self.board.short, 
+            'head': self.head,
+            'body': self.body,
+            'created': dump_time(self.created)
+        }
 
 class Permission(db.Model):
     __tablename__ = 'permission'
@@ -75,7 +89,7 @@ class Session(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', back_populates='sessions')
     token = db.Column(db.String(32), default=rand_string_wrapper(24), nullable=False)
-    opened = db.Column(db.DateTime, default=datetime.today(), nullable=False)
+    opened = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     ip = db.Column(db.String(32), default='0.0.0.0')
     user_agent = db.Column(db.String(32), nullable=False)
 

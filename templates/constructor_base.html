@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block addition_requirements %}
+{% endblock %}
+
+{% block content %}
+    <p>parent: {% block parent_field %} None {% endblock %}</p>
+    <p>head</p>
+    <input id='head-field' type='text'>
+    <p>body</p>
+    <input id='body-field' type='text'>
+    <p>submit</p>
+    <input id='submit-button' type='button' value='submit'>
+{% endblock %}

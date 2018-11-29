@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <a href='/board/{{ current_board.short }}/thread_post_constructor'>Make thread</a>
+    </div>
+    {% for post in posts %}
+        <div id='post_{{ post.id }}'>
+
+            <div>
+                {{ post.head }} Anonymous {{ post.created }} <a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>thread</a>
+                <a href='/board/{{ current_board.short }}/reply/{{ post.id }}'>reply</a>
+            </div>
+
+            <div>
+                {{ post.body }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
