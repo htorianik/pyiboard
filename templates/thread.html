@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <a href='/board/{{ current_board.short }}'>Обратно на доску</a>
+    </div>
+
+    <div>
+        <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ thread_post.id }}'>Ответить в тред</a>
+    </div>
+    {% for post in posts %}
+        <div id='post_{{ post.id }}'>
+
+            <div>
+                {{ post.head }} Анон {{ post.created }} 
+                <a>пост {{ post.id }}</a>
+                <a>Ответ на пост {{ post.parent.id }}</a>
+                <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>ответить</a>
+            </div>
+
+            <div>
+                {{ post.body }}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

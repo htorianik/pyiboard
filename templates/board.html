@@ -2,14 +2,16 @@
 
 {% block content %}
     <div>
-        <a href='/board/{{ current_board.short }}/thread_post_constructor'>Make thread</a>
+        <a href='/board/{{ current_board.short }}/thread_post_constructor'>Создать тред</a>
     </div>
     {% for post in posts %}
         <div id='post_{{ post.id }}'>
 
             <div>
-                {{ post.head }} Anonymous {{ post.created }} <a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>thread</a>
-                <a href='/board/{{ current_board.short }}/reply/{{ post.id }}'>reply</a>
+                {{ post.head }} Анон {{ post.created }} 
+                <a> пост {{ post.id }}</a>
+                <a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>к треду</a>
+                <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>овтетить</a>
             </div>
 
             <div>

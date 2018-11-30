@@ -8,3 +8,8 @@ const get_board_determinate_suffix = () => {
         return `/board/${dirs[2]}`;
     }
 }
+
+const get_query_arg = (name) => {
+    const UrlParams = new URLSearchParams(window.location.search);
+    return UrlParams.get(name);
+}

@@ -1,0 +1,9 @@
+{% extends 'constructor_base.html' %}
+
+{% block parent_field %}
+    {{ parent_post.id }}
+{% endblock %}
+
+{% block addition_requirements %}
+    <script type='text/javascript' src='/public/scripts/post_constructor.js'></script>
+{% endblock %}

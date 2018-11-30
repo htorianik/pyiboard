@@ -40,6 +40,31 @@ class Board(db.Model):
     def __repr__(self):
         return "<Board %s>" % self.id
 
+    def dump_to_dict(self, with_posts=False, threads_only=True):
+        dumped = {
+            'id': self.id,
+            'title': self.title,
+            'short': self.short
+        }
+
+        if with_posts:
+            posts = list(filter(
+                lambda post: 
+                    # 1 -- is GENESIS_POST_ID...
+                    not(threads_only and (not post.parent or post.parent.id == 1)),
+                self.posts
+            ))
+
+            posts = list(map(
+                lambda post : post.dump_to_dict()
+            ))
+            
+            dumped.update({
+                'posts': posts
+            })
+
+        return dumped
+
 
 class Post(db.Model):
     __tablename__ = 'post'
@@ -59,8 +84,8 @@ class Post(db.Model):
     def __repr__(self):
         return "<Post %s>" % self.id
 
-    def dump_to_dict(self):
-        return {
+    def dump_to_dict(self, with_children=False, child_number=3):
+        dumped = {
             'id': self.id,
             'board_id': self.board_id,
             'parent_id': self.parent_id,
@@ -70,6 +95,12 @@ class Post(db.Model):
             'body': self.body,
             'created': dump_time(self.created)
         }
+
+        if(with_children):
+            pass
+
+        return dumped
+
 
 class Permission(db.Model):
     __tablename__ = 'permission'

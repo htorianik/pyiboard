@@ -13,6 +13,9 @@ db.init_app(app)
 # the root of roots
 GENESIS_POST_ID = 1
 
+
+######################## UTILS ################################
+
 def check_query_args(required_keys):
     def real_decorator(func):
         @wraps(func)
@@ -65,6 +68,17 @@ def hash_password(login, password):
     return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
 
 
+def get_thread_post(post):
+    current_post = post
+
+    while(current_post.parent and current_post.parent.id != GENESIS_POST_ID):
+        current_post = Post.query.filter_by(id=current_post.parent.id).first()
+
+        if not current_post:
+            return None
+
+    return current_post
+
 ######################## FRONT END ############################
 
 def render_board(current_board):
@@ -73,9 +87,45 @@ def render_board(current_board):
     return render_template('board.html', boards=boards, current_board=current_board, posts=thread_posts)
 
 
-def render_thread_post_constructor(current_board):
+def render_thread_post_constructor(current_board, callback_url=None):
     boards = Board.query.all()
-    return render_template('thread_post_constructor.html', boards=boards, current_board=current_board)
+    return render_template(
+        'thread_post_constructor.html',
+        boards=boards,
+        current_board=current_board,
+        callback_url=callback_url
+    )
+
+
+def render_post_constructor(current_board, parent_post, callback_url=None):
+    boards = Board.query.all()
+    return render_template(
+        'post_constructor.html',
+        boards=boards,
+        current_board=current_board,
+        parent_post=parent_post,
+        callback_url=callback_url
+    )
+
+
+def render_thread(current_board, thread_post):
+    boards = Board.query.all()
+    posts = Post.query.all()
+
+    posts = Post.query.all()
+    posts = list(filter(
+        lambda post : 
+            get_thread_post(post) == thread_post and post != thread_post,
+        posts   
+    ))
+
+    return render_template(
+        'thread.html',
+        boards=boards,
+        current_board=current_board,
+        thread_post=thread_post,
+        posts=posts
+    )
 
 ######################## BACK END #############################
 
@@ -194,7 +244,7 @@ def board_handle(board_short):
 
 
 @app.route('/board/<board_short>/make_post')
-@check_query_args({'parent', 'head', 'body'})
+@check_query_args({'parent_post_id', 'head', 'body'})
 @session_checker()
 def board_make_post_handle(board_short):
     current_board = Board.query.filter_by(
@@ -204,7 +254,7 @@ def board_make_post_handle(board_short):
     if not current_board:
         return "<h1>There is no such board :|</h1>"
 
-    parent_post_id = request.args.get('parent')
+    parent_post_id = request.args.get('parent_post_id')
     body = request.args.get('body')
     head = request.args.get('head')
 
@@ -224,6 +274,9 @@ def board_make_post_handle(board_short):
     )
     db.session.add(new_post)
     db.session.commit()
+
+    thread_post = get_thread_post(parent_post)
+    return redirect(f'/board/{current_board.short}/thread/{thread_post.id}')
 
 
 @app.route('/board/<board_short>/make_thread_post')
@@ -267,6 +320,43 @@ def board_thread_post_constructor(board_short):
 
     return render_thread_post_constructor(current_board)
 
+
+@app.route('/board/<board_short>/post_constructor')
+@check_query_args({'parent_post_id'})
+@session_checker()
+def board_post_constructor_handle(board_short):
+    current_board = Board.query.filter_by(short=board_short).first()
+
+    if not current_board:
+        return "<h1>There is no such</h1>"
+
+    parent_post_id = request.args.get('parent_post_id')
+
+    parent_post = Post.query.filter_by(id=parent_post_id).first()
+
+    return render_post_constructor(current_board, parent_post)
+
+
+@app.route('/board/<board_short>/thread/<thread_post_id>')
+@session_checker()
+def board_thread_post_handle(board_short, thread_post_id):
+    current_board = Board.query.filter_by(short=board_short).first()
+
+    if not current_board:
+        return "<h1>There is no board</h1>"
+
+    thread_post = Post.query.filter_by(
+        id=thread_post_id,
+        board=current_board,
+        parent_id=GENESIS_POST_ID
+    ).first()
+
+    if not thread_post:
+        return "<h1> There is no such thread post in this board :| </h1>"
+
+    return render_thread(current_board=current_board, thread_post=thread_post)
+
+    
 
 @app.route('/registration')
 def registration_handle():
