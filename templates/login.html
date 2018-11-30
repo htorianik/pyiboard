@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block addition_requirements %}
+<script type='text/javascript' src='/public/scripts/login.js'></script>
+{% endblock %}
+
+{% block content %}
+    <p>Логин</p>
+    <input id='login-input' type='text'>
+    <p>Пароль</p>
+    <input id='password-input' type='password'>
+    <p>Войти</p>
+    <input type='button' id='login-button' value='Войти'>
+{% endblock %}

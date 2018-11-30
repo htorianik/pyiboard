@@ -1,14 +1,14 @@
 [
     {
-        "title": "study",
+        "title": "Обучение",
         "short": "std"
     },
     {
-        "title": "extrim",
+        "title": "Экстрим",
         "short": "e"
     },
     {
-        "title": "programming",
+        "title": "Программирование",
         "short": "prg"
     }
 ]

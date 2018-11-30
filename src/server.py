@@ -49,12 +49,21 @@ def session_checker():
             ).first()
 
             if not current_session:
-                return jsonify({
-                    "Respose": "Couldn't authorize you :|"
-                })
+                return redirect('/login')
             else:
                 return func(**argd)
 
+        return wrapper
+    return real_decorator
+
+
+def get_user():
+    def real_decorator(func):
+        @wraps(func)
+        def wrapper(**argd):
+            session_id = request.cookies.get('session_id')
+            current_session = Session.query.filter_by(id=session_id).first()
+            return func(current_user=current_session.user, **argd)
         return wrapper
     return real_decorator
 
@@ -83,7 +92,17 @@ def get_thread_post(post):
 
 def render_board(current_board):
     boards = Board.query.all()
-    thread_posts = Post.query.filter_by(parent_id=GENESIS_POST_ID, board=current_board).all()
+    thread_posts = Post.query.filter_by(
+        parent_id=GENESIS_POST_ID,
+        board=current_board
+    ).all()
+
+    thread_posts = list(map(
+        lambda post: 
+            post.dump_to_dict(with_children=True, child_number=3),
+        thread_posts
+    ))
+
     return render_template('board.html', boards=boards, current_board=current_board, posts=thread_posts)
 
 
@@ -126,6 +145,23 @@ def render_thread(current_board, thread_post):
         thread_post=thread_post,
         posts=posts
     )
+
+
+def render_login():
+    boards = Board.query.all()
+    return render_template('login.html', boards=boards)
+
+
+def render_registration():
+    boards = Board.query.all()
+    return render_template('registration.html', boards=boards)
+
+
+def render_me(current_user):
+    boards = Board.query.all()
+    current_user = current_user.dump_to_dict()
+
+    return render_template('me.html', boards=boards, current_user=current_user) 
 
 ######################## BACK END #############################
 
@@ -360,18 +396,20 @@ def board_thread_post_handle(board_short, thread_post_id):
 
 @app.route('/registration')
 def registration_handle():
-    return render_template(
-        'register.html',
-        login='Registration'
-    )
+    return render_registration()
 
 
 @app.route('/login')
 def login_handle():
-    return render_template(
-        'login.html', 
-        title='Login'
-        )
+    return render_login()
+
+
+@app.route('/me')
+@session_checker()
+@get_user()
+def me_handle(current_user):
+    return render_me(current_user)
+
 
 @app.route('/public/<path:filename>')
 def public_handle(filename):

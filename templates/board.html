@@ -5,18 +5,37 @@
         <a href='/board/{{ current_board.short }}/thread_post_constructor'>Создать тред</a>
     </div>
     {% for post in posts %}
-        <div id='post_{{ post.id }}'>
+        <div>
 
             <div>
                 {{ post.head }} Анон {{ post.created }} 
                 <a> пост {{ post.id }}</a>
                 <a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>к треду</a>
                 <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>овтетить</a>
-            </div>
+                <div>
+                    {{ post.body }}
+                </div>
+                <br>
 
-            <div>
-                {{ post.body }}
+                <div>
+                    {% for child_post in post.children %}
+                        <div>
+                            <div>
+                                {{ child_post.head }} Анон {{ child_post.created }} 
+                                <a>пост {{ child_post.id }}</a>
+                                <a>Ответ на пост {{ child_post.parent_id }}</a>
+                                <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>ответить</a>
+                            </div>
+                
+                            <div>
+                                {{ child_post.body }}
+                            </div>
+                        </div>
+                        <br>
+                    {% endfor %}
+                </div>
             </div>
         </div>
+        <br><br><br>
     {% endfor %}
 {% endblock %}

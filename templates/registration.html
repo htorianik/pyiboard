@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block addition_requirements %}
+<script type='text/javascript' src='/public/scripts/registration.js'></script>
+{% endblock %}
+
+{% block content %}
+    <p>Логин</p>
+    <input id='login-input' type='text'>
+    <p>Пароль</p>
+    <input id='password-input-1' type='password'>
+    <p>Повторить пароль</p>
+    <input id='password-input-2' type='password'>
+    <p>Токен-приглашение</p>
+    <input id='token-input' type='text'>
+    <p>Зарегистрироваться</p>
+    <input type='button' id='registration-button' value='Войти'>
+{% endblock %}

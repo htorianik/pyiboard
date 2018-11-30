@@ -8,14 +8,35 @@ from config import Config
 
 db = SQLAlchemy()
 
+################### DATABASE UTILS #####################
+
 def dump_time(t):
     return t.strftime('%Y-%m-%d %H:%M:%S')
+
 
 def rand_string_wrapper(length):
     def rand_string():
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for i in range(length))
     return rand_string    
+
+
+def get_children(base_post, sort_by_date=True):
+    children = []
+
+    def append_children(parent_post):
+        for child_post in parent_post.children:
+            children.append(child_post)
+            append_children(child_post)
+
+    append_children(base_post)
+
+    if sort_by_date:
+        children = sorted(children, key=lambda post: post.created)
+
+    return children
+
+################### MODELS DESCRIPTION #################
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -28,6 +49,13 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User %s>" % self.id
+
+    def dump_to_dict(self):
+        return {
+            'id': self.id,
+            'login': self.login,
+            'registered': dump_time(self.registered)
+        }
 
 
 class Board(db.Model):
@@ -58,7 +86,7 @@ class Board(db.Model):
             posts = list(map(
                 lambda post : post.dump_to_dict()
             ))
-            
+
             dumped.update({
                 'posts': posts
             })
@@ -97,7 +125,16 @@ class Post(db.Model):
         }
 
         if(with_children):
-            pass
+            children = get_children(self)[:child_number]
+            children = list(map(
+                lambda post:
+                    post.dump_to_dict(),
+                children
+            ))
+
+            dumped.update({
+                'children': children
+            })
 
         return dumped
 
