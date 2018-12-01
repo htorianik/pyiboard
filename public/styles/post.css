@@ -1,0 +1,66 @@
+.post {
+    background-color: lightcoral;
+    border-color: grey;
+    border-style: solid;
+    border-width: 1px;
+    margin-left: 2%;
+    width: 93%;
+}
+
+.child-post {
+    background-color: lightpink;
+    margin-left: 5%;
+    margin-top: 1.5%;
+    border-color: grey;
+    border-style: solid;
+    border-width: 1px;
+    width: 90%;
+}
+
+.thread-title {
+    width: 40%;
+    display: inline-block;
+    text-align: center;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+.thread-title-pic {
+    width: 100%;
+}
+
+.post-label {
+    color: grey;
+    font-size: 12px;
+}
+
+.child-id {
+    font-size: 12px;
+}
+
+.body {
+    padding: 20px;
+}
+
+.post a {
+    text-decoration: none;
+}
+
+.child-post a {
+    text-decoration: none;
+}
+
+
+.post-family {
+    margin-top: 5%;
+}
+
+.create-thread {
+    position: relative;
+    text-align: center;
+    width: 20%;
+    margin-left: 40%;
+    margin-top: 5%;
+    margin-right: auto;
+    font-size: 30px;
+}

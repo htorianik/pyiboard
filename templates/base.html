@@ -2,6 +2,7 @@
     <head>
         <meta type='text/html' charset='utf8'>
 
+        <link rel='stylesheet' type='text/css' href='/public/styles/global.css'>
         <script type='text/javascript' src='/public/scripts/global.js'></script>
         {% block addition_requirements %}
         {% endblock %}
@@ -9,18 +10,22 @@
 
     <body>
         <header>
-            {% for board in boards %}
-            <div>
-                <a href='/board/{{ board.short }}'>{{ board.title }} - /{{ board.short }} </a>
+            <div class='quote'>Свободен лишь тот, кто может позволить себе не лгать.</div>
+            <div class='header-boards-refs'>
+                [ {% for board in boards %}
+                <a href='/board/{{ board.short }}' class='header-list-item'>{{ board.short }} </a> / 
+                {% endfor %} ]
             </div>
-            {% endfor %}
+
         </header>
 
-        {% block content %}
-        {% endblock %}
+        <div id='content'>
+            {% block content %}
+            {% endblock %}
+        </div>
 
         <footer>
-            Footer
+            
         </footer>
     </body>
 </html>

@@ -1,14 +1,17 @@
 [
     {
         "title": "Обучение",
-        "short": "std"
+        "short": "std",
+        "image": "resources/s-pic.gif"
     },
     {
         "title": "Экстрим",
-        "short": "e"
+        "short": "e",
+        "image": "resources/e-pic.gif"
     },
     {
         "title": "Программирование",
-        "short": "prg"
+        "short": "prg",
+        "imgage": "resources/prg-pic.gif"
     }
 ]
