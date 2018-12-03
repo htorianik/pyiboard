@@ -4,6 +4,7 @@
     border-style: solid;
     border-width: 1px;
     margin-left: 2%;
+    margin-top: 3%;
     width: 93%;
 }
 
@@ -39,7 +40,7 @@
 }
 
 .body {
-    padding: 20px;
+    padding: 25px;
 }
 
 .post a {
@@ -50,17 +51,12 @@
     text-decoration: none;
 }
 
-
-.post-family {
-    margin-top: 5%;
-}
-
 .create-thread {
     position: relative;
+    display: block;
     text-align: center;
-    width: 20%;
-    margin-left: 40%;
-    margin-top: 5%;
-    margin-right: auto;
+    width: 40%;
+    margin: auto;
+    padding: 10px;
     font-size: 30px;
 }

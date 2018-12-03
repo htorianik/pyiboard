@@ -137,6 +137,12 @@ def render_thread(current_board, thread_post):
             get_thread_post(post) == thread_post and post != thread_post,
         posts   
     ))
+    posts = list(map(
+        lambda post: 
+            post.dump_to_dict(),
+        posts
+    ))
+    thread_post = thread_post.dump_to_dict()
 
     return render_template(
         'thread.html',

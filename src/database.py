@@ -3,6 +3,7 @@ import datetime
 import random
 
 from flask_sqlalchemy import SQLAlchemy
+from src.parser import parse_to_markup
 
 from config import Config
 
@@ -120,7 +121,7 @@ class Post(db.Model):
             'children_ids': list(map(lambda child : child.id, self.children)),
             'board': self.board.short, 
             'head': self.head,
-            'body': self.body,
+            'body': parse_to_markup(self.body),
             'created': dump_time(self.created)
         }
 

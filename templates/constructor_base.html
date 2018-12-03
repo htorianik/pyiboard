@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
 
 {% block addition_requirements %}
+    <link rel='stylesheet' type='text/css' href='/public/styles/post.css'>
+    <link rel='stylesheet' type='text/css' href='/public/styles/button.css'>
 {% endblock %}
 
 {% block content %}
-    <p>Родительский пост: {% block parent_field %} None {% endblock %}</p>
-    <p>Заголовок</p>
-    <input id='head-field' type='text'>
-    <p>Пост</p>
-    <input id='body-field' type='text'>
-    <p>Отправить</p>
-    <input id='submit-button' type='button' value='Отправить'>
+    <div class='creating-form'>
+        <div class='field-title'> Заголовок </div>
+        <input class='head-field' id='head-field' type='text'>
+        <div class='field-title'> Тело поста </div>
+        <textarea class='body-field' id='body-field'></textarea>
+        <input class='midnight-blue-flat-button submit-button' id='submit-button' type='button' value='Отправить'>
+    </div>
 {% endblock %}

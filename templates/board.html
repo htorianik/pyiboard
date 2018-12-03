@@ -13,37 +13,31 @@
         <a href='/board/{{ current_board.short }}/thread_post_constructor'>[Создать тред]</a>
     </div>
     {% for post in posts %}
-        <div class='post-family'>
+        <div class='post'>
+            <a class='post-label'>>></a><div class='inline'>{{ post.head }} | </div>
+            <div class='inline'>{{ post.created }} | </div>
+            <div class='inline'>пост но. {{ post.id }} | </div>
+            <div class='inline'><a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>[к треду]</a></div>
+            <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
+            {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+            <div class='body'>
+                {{ post.body }}
+            </div>
+        </div>
 
-            <div class='post'>
-                <a class='post-label'>>></a><div class='inline'>{{ post.head }} | </div>
-                <div class='inline'>{{ post.created }} | </div>
-                <div class='inline'>пост но. {{ post.id }} | </div>
-                <div class='inline'><a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>[к треду]</a></div>
-                <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
-                {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+        {% for child_post in post.children %}
+            <div class='child-post'>
+                <a class='post-label'>>></a>
+                <div class='inline'>{{ child_post.head }} | </div>
+                <div class='inline'>{{ child_post.created }} | </div>
+                <div class='inline'>пост но. {{ child_post.id }} | </div>
+                <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
+                {% for child_id in child_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
                 <div class='body'>
-                    {{ post.body }}
+                    <a href='#'>>>{{ child_post.parent_id }}</a><br>
+                    {{ child_post.body }}
                 </div>
             </div>
-
-            <div>
-                {% for child_post in post.children %}
-                    <div class='child-post'>
-                        <a class='post-label'>>></a>
-                        <div class='inline'>{{ child_post.head }} | </div>
-                        <div class='inline'>{{ child_post.created }} | </div>
-                        <div class='inline'>пост но. {{ child_post.id }} | </div>
-                        <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
-                        {% for child_id in child_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
-                        <div class='body'>
-                            <a href='#'>>>{{ child_post.parent_id }}</a><br>
-                            {{ child_post.body }}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            
-        </div>
+        {% endfor %}
     {% endfor %}
 {% endblock %}
