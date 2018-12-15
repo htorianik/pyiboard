@@ -1,17 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'base_debug.html' %}
 
-
-{% block addition_requirements %}
+{% block requirements %}
+    {{ super() }}
     <link rel='stylesheet' type='text/css' href='/public/styles/post.css'>
+    <link rel='stylesheet' type='text/css' href='/public/styles/thread.css'>
 {% endblock %}
 
-
 {% block content %}
-    <div class='create-thread'>
+    <div class='title-link'>
         <a href='/board/{{ current_board.short }}'>[Обратно на доску]</a>
     </div>
 
-    <div class='create-thread'>
+    <div class='title-link'>
         <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ thread_post.id }}'>[Ответить в тред]</a>
     </div>
 

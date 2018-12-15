@@ -18,18 +18,6 @@
     width: 90%;
 }
 
-.thread-title {
-    width: 40%;
-    display: inline-block;
-    text-align: center;
-    margin-left: 30%;
-    margin-right: 30%;
-}
-
-.thread-title-pic {
-    width: 100%;
-}
-
 .post-label {
     color: grey;
     font-size: 12px;
@@ -51,7 +39,7 @@
     text-decoration: none;
 }
 
-.create-thread {
+.title-link {
     position: relative;
     display: block;
     text-align: center;

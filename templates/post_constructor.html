@@ -1,11 +1,23 @@
-{% extends 'constructor_base.html' %}
-
-{% block parent_field %}
-    {{ parent_post.id }}
-{% endblock %}
+{% extends 'base.html' %}
 
 {% block addition_requirements %}
-    <script type='text/javascript' src='/public/scripts/post_constructor.js'></script>
-    <link rel='stylesheet' type='text/css' href='/public/styles/constructor.css'>
     <link rel='stylesheet' type='text/css' href='/public/styles/button.css'>
+    <link rel='stylesheet' type='text/css' href='/public/styles/constructor.css'>
+    <script type='text/javascript' src='/public/scripts/post_constructor.js'></script>
+{% endblock %}
+
+{% block content %}
+    <div class='creating-form'>
+        <div class='field-title'> Заголовок </div>
+        <input class='head-field' id='head-field' type='text'>
+        <div class='field-title'> Тело поста </div>
+        <textarea class='body-field' id='body-field'></textarea>
+
+        <input type='file' class='midnight-blue-flat-button' id='file-field'>
+
+        <div class='files-area' id='files-area'>
+        </div>
+
+        <input class='midnight-blue-flat-button submit-button' id='submit-button' type='button' value='Отправить'>
+    </div>
 {% endblock %}

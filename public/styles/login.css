@@ -1,0 +1,25 @@
+#login-form {
+    position: relative;
+    text-align: center;
+    display: block;
+    margin: auto;
+    width: 60%;
+}
+
+.field-title {
+    font-size: 28px;
+    padding: 10px;
+}
+
+.submit-button {
+    margin-top: 30px;
+    width: 30%;
+    font-size: 24px;
+    height: 5%;
+}
+
+.input-form {
+    height: 3%;
+    width: 50%;
+    font-size: 20px;
+}

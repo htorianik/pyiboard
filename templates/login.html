@@ -1,14 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'base_debug.html' %}
 
-{% block addition_requirements %}
+{% block requirements %}
+{{ super() }}
+<link rel='stylesheet' type='text/css' href='/public/styles/button.css'>
+<link rel='stylesheet' type='text/css' href='/public/styles/login.css'>
 <script type='text/javascript' src='/public/scripts/login.js'></script>
 {% endblock %}
 
 {% block content %}
-    <p>Логин</p>
-    <input id='login-input' type='text'>
-    <p>Пароль</p>
-    <input id='password-input' type='password'>
-    <p>Войти</p>
-    <input type='button' id='login-button' value='Войти'>
+    <div id='login-form'>
+        <div class='field-title'>Логин</div>
+        <input class='input-form' id='login-input' type='text'>
+        <div class='field-title'>Пароль</div>
+        <input class='input-form' id='password-input' type='password'>
+        <div>
+            <input type='button' class='midnight-blue-flat-button submit-button' id='login-button' value='Войти'>
+        </div>
+    </div>
 {% endblock %}

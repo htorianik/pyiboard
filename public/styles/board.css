@@ -1,0 +1,11 @@
+#thread-title {
+    width: 40%;
+    display: inline-block;
+    text-align: center;
+    margin-left: 30%;
+    margin-right: 30%;
+}
+
+#thread-title-pic {
+    width: 100%;
+}

@@ -31,3 +31,10 @@
     font-size: 28px;
     padding: 10px;
 }
+
+.files-area {
+    margin-left: 20px;
+    margin-top: 20px;
+    width: 40%;
+    background-color: grey;
+}

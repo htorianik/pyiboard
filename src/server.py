@@ -250,7 +250,6 @@ def register_handle():
 def logout_handle():
     response.set_cookie('session_id', str(-1).encode('utf-8'))
     response.set_cookie('session_token', "None".encode('utf-8'))
-
     return jsonify({
         "Reponse": "You loged out :|"
     })
@@ -258,10 +257,8 @@ def logout_handle():
 @app.route('/')
 @session_checker()
 def index_handle():
-
     boards = Board.query.all()
-
-    return render_template('base.html', boards=boards)
+    return render_template('index.html', boards=boards)
 
 
 @app.route('/board/<board_short>')
@@ -423,3 +420,11 @@ def public_handle(filename):
         Config.PUBLIC_DIR, 
         filename, 
         as_attachment=True)
+
+
+### TEST FRONTEND ###
+
+@app.route('/debug', methods=['GET'])
+def index_debug_handle():
+    boards = Board.query.all()
+    return render_template('index_debug.html', boards=boards)
