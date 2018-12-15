@@ -1,3 +1,5 @@
 var/
 .vscode
 __pycache__
+
+uploads/*

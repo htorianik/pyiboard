@@ -17,12 +17,23 @@ window.addEventListener('load', () => {
 
     const uploadFile = (file) => {
 
+        var data = new FormData();
+        data.append('file', file);
+
         url_suffix = '';
         content_type = '';
         ext = file.name.split('.')[file.name.split('.').length - 1];
 
-        console.log(`filename: ${file.name}, content-type: ${content_type}, url-suffix: ${url_suffix}`);
-
+        fetch('/upload', {
+            method: 'POST',
+            body: data
+        }).then(
+            res => res.json()
+        ).then(
+            res => {
+                console.log(res);
+            }
+        )
     }
 
     document.getElementById('file-field').addEventListener('change', ()=>{

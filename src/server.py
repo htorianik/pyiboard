@@ -1,20 +1,18 @@
 import hashlib
 import random
 import string
-from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response
+import os
+from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response, Blueprint
 from functools import wraps
 from config import Config
-from src.database import db, User, Post, Board, Permission, Session
+from src.database import db
+from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post
+from src.utils import GENESIS_POST_ID, rand_string, hash_password
 
-app = Flask(__name__, template_folder=Config.TEMPLATES_DIR)
-app.config.update(Config.FLASK_CONFIG)
-db.init_app(app)
-
-# the root of roots
-GENESIS_POST_ID = 1
-
+app = Blueprint('/', __name__, template_folder=Config.TEMPLATES_DIR)
 
 ######################## UTILS ################################
+
 
 def check_query_args(required_keys):
     def real_decorator(func):
@@ -67,26 +65,6 @@ def get_user():
         return wrapper
     return real_decorator
 
-
-def rand_string(length):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
-
-
-def hash_password(login, password):
-    return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
-
-
-def get_thread_post(post):
-    current_post = post
-
-    while(current_post.parent and current_post.parent.id != GENESIS_POST_ID):
-        current_post = Post.query.filter_by(id=current_post.parent.id).first()
-
-        if not current_post:
-            return None
-
-    return current_post
 
 ######################## FRONT END ############################
 
@@ -421,6 +399,37 @@ def public_handle(filename):
         filename, 
         as_attachment=True)
 
+
+@app.route('/files/<path:filename>')
+def files_handle(filename):
+    print(filename)
+    return send_from_directory(
+        Config.UPLOAD_DIR,
+        filename
+    )
+
+@app.route('/upload', methods=['POST'])
+def upload_handle():
+    if 'file' not in request.files:
+        return jsonify({
+            'Reponse': 'ERR'
+        })
+
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({
+            'Response': 'ERR'
+        })
+
+    filetracker = FileTracker.create_from_file(file)
+    db.session.add(filetracker)
+    db.session.commit()
+
+    file.save(os.path.join(app.config.get("UPLOAD_FOLDER"), filetracker.to_filename()))
+    return jsonify({
+        'Response': 'OK',
+        'filename': filetracker.to_filename()
+    })
 
 ### TEST FRONTEND ###
 
