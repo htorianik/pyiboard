@@ -1,4 +1,4 @@
-{% extends 'base_debug.html' %}
+{% extends 'base.html' %}
 
 {% block requirements %}
     {{ super() }}
@@ -13,7 +13,7 @@
     </div>
 
     <div class='title-link'>
-        <a href='/board/{{ current_board.short }}/post_constructor?parent_post_id=-1'>[Создать тред]</a>
+        <a href='/{{ current_board.short }}/post_constructor?parent_post_id=-1'>[Создать тред]</a>
     </div>
 
     {% for post in posts %}
@@ -21,8 +21,8 @@
             <a class='post-label'>>></a><div class='inline'>{{ post.head }} | </div>
             <div class='inline'>{{ post.created }} | </div>
             <div class='inline'>пост но. {{ post.id }} | </div>
-            <div class='inline'><a href='/board/{{ current_board.short }}/thread/{{ post.id }}'>[к треду]</a></div>
-            <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
+            <div class='inline'><a href='/{{ current_board.short }}/thread/{{ post.id }}'>[к треду]</a></div>
+            <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
             {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
             <div class='body'>
                 {{ post.body }}
@@ -35,7 +35,7 @@
                 <div class='inline'>{{ child_post.head }} | </div>
                 <div class='inline'>{{ child_post.created }} | </div>
                 <div class='inline'>пост но. {{ child_post.id }} | </div>
-                <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
+                <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
                 {% for child_id in child_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
                 <div class='body'>
                     <a href='#'>>>{{ child_post.parent_id }}</a><br>

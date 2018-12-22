@@ -6,7 +6,8 @@ import json
 from flask import Flask
 
 from config import Config
-from src.database import db, Board, Post, User
+from src.database import db
+from src.models import Board, Post, User
 from src.server import hash_password
 
 if not os.path.exists(Config.VAR_DIR):

@@ -6,7 +6,7 @@ from flask import Flask, render_template, send_from_directory, request, jsonify,
 from functools import wraps
 from config import Config
 from src.database import db
-from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post
+from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from src.utils import GENESIS_POST_ID, rand_string, hash_password
 
 app = Blueprint('/', __name__, template_folder=Config.TEMPLATES_DIR)
@@ -149,6 +149,21 @@ def render_me(current_user):
 
 ######################## BACK END #############################
 
+def associate_with_post(files, post):
+    #filetrackers = list(map(
+    #    lambda filename:
+    #
+    #))
+
+    file_refference = FileRefference(
+        filetracker=filetracker,
+        post=post
+    )
+
+    db.session.add(filetracker)
+    db.ses
+
+
 @app.route('/authentication')
 @check_query_args({'login', 'password'})
 def oauth2_handle():
@@ -197,7 +212,6 @@ def oauth2_handle():
 
     return response
 
-
 @app.route('/register')
 @check_query_args({'login', 'password'})
 def register_handle():
@@ -239,28 +253,7 @@ def index_handle():
     return render_template('index.html', boards=boards)
 
 
-@app.route('/board/<board_short>')
-@session_checker()
-def board_handle(board_short):
-
-    current_board = Board.query.filter_by(
-        short=board_short
-    ).first()
-
-    if not current_board:
-        return "<h1>There is no such</h1>"
-
-    threads = Post.query.filter_by(
-        parent_id = GENESIS_POST_ID,
-        board_id = current_board.id
-    ).all()
-
-    threads = list(map(lambda thread : thread.dump_to_dict(), threads))
-
-    return render_board(current_board)
-
-
-@app.route('/board/<board_short>/make_post')
+@app.route('/<board_short>/make_post')
 @check_query_args({'parent_post_id', 'head', 'body'})
 @session_checker()
 def board_make_post_handle(board_short):
@@ -293,10 +286,10 @@ def board_make_post_handle(board_short):
     db.session.commit()
 
     thread_post = get_thread_post(parent_post)
-    return redirect(f'/board/{current_board.short}/thread/{thread_post.id}')
+    return redirect(f'/{current_board.short}/thread/{thread_post.id}')
 
 
-@app.route('/board/<board_short>/make_thread_post')
+@app.route('/<board_short>/make_thread_post')
 @check_query_args({'head', 'body'})
 @session_checker()
 def board_make_thred_post(board_short):
@@ -322,23 +315,11 @@ def board_make_thred_post(board_short):
     )
     db.session.add(new_post)
     db.session.commit()
-    return redirect(f'/board/{current_board.short}')
+    return redirect(f'/{current_board.short}')
 
 
-@app.route('/board/<board_short>/thread_post_constructor')
-@session_checker()
-def board_thread_post_constructor(board_short):
-    current_board = Board.query.filter_by(  
-        short=board_short
-    ).first()
 
-    if not current_board:
-        return "<h1>There is no such</h1>"
-
-    return render_thread_post_constructor(current_board)
-
-
-@app.route('/board/<board_short>/post_constructor')
+@app.route('/<board_short>/post_constructor')
 @check_query_args({'parent_post_id'})
 @session_checker()
 def board_post_constructor_handle(board_short):
@@ -354,7 +335,7 @@ def board_post_constructor_handle(board_short):
     return render_post_constructor(current_board, parent_post)
 
 
-@app.route('/board/<board_short>/thread/<thread_post_id>')
+@app.route('/<board_short>/thread/<thread_post_id>')
 @session_checker()
 def board_thread_post_handle(board_short, thread_post_id):
     current_board = Board.query.filter_by(short=board_short).first()
@@ -373,6 +354,25 @@ def board_thread_post_handle(board_short, thread_post_id):
 
     return render_thread(current_board=current_board, thread_post=thread_post)
 
+
+@app.route('/<board_short>')
+@session_checker()
+def board_handle(board_short):
+    current_board = Board.query.filter_by(
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return "<h1>There is no such</h1>"
+
+    threads = Post.query.filter_by(
+        parent_id = GENESIS_POST_ID,
+        board_id = current_board.id
+    ).all()
+
+    threads = list(map(lambda thread : thread.dump_to_dict(), threads))
+
+    return render_board(current_board)
     
 
 @app.route('/registration')
@@ -400,16 +400,52 @@ def public_handle(filename):
         as_attachment=True)
 
 
-@app.route('/files/<path:filename>')
-def files_handle(filename):
-    print(filename)
+@app.route('/<board_short>/files/<path:filename>')
+def files_handle(filename, board_short):
+    current_board = Board.query.filter_by(
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return jsonify({
+            'Response': 'ERR'
+        })
+
+    filetracker = list(filter(
+        lambda filetracker:
+            filetracker.to_filename() == filename,
+        FileTracker.query.all()
+        ))
+
+    if not filetracker:
+        return jsonify({
+            'Response': 'ERR'
+        })
+
+    filetracker = filetracker[0]
+
+    if filetracker.board != current_board:
+        return jsonify({
+            'Response': 'ERR'
+        })
+
     return send_from_directory(
         Config.UPLOAD_DIR,
-        filename
+        filetracker.to_filename()
     )
 
-@app.route('/upload', methods=['POST'])
-def upload_handle():
+
+@app.route('/<board_short>/upload', methods=['POST'])
+def upload_handle(board_short):
+    current_board = Board.query.filter_by(
+        short=board_short
+    ).first()
+
+    if not current_board:
+        return jsonify({
+            'Response': 'ERR'
+        })
+
     if 'file' not in request.files:
         return jsonify({
             'Reponse': 'ERR'
@@ -421,11 +457,11 @@ def upload_handle():
             'Response': 'ERR'
         })
 
-    filetracker = FileTracker.create_from_file(file)
+    filetracker = FileTracker.create_from_file(file, board=current_board)
     db.session.add(filetracker)
     db.session.commit()
 
-    file.save(os.path.join(app.config.get("UPLOAD_FOLDER"), filetracker.to_filename()))
+    file.save(os.path.join(Config.FLASK_CONFIG.get("UPLOAD_FOLDER"), filetracker.to_filename()))
     return jsonify({
         'Response': 'OK',
         'filename': filetracker.to_filename()

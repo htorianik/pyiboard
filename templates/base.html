@@ -3,8 +3,9 @@
         <meta type='text/html' charset='utf8'>
 
         <link rel='stylesheet' type='text/css' href='/public/styles/global.css'>
+        <link rel='stylesheet' type='text/css' href='/public/styles/file.css'>
         <script type='text/javascript' src='/public/scripts/global.js'></script>
-        {% block addition_requirements %}
+        {% block requirements %}
         {% endblock %}
     </head>
 
@@ -13,7 +14,7 @@
             <div class='quote'>Свободен лишь тот, кто может позволить себе не лгать.</div>
             <div class='header-boards-refs'>
                 [ {% for board in boards %}
-                <a href='/board/{{ board.short }}' class='header-list-item'>{{ board.short }} </a> / 
+                <a href='/{{ board.short }}' class='header-list-item'>{{ board.short }} </a> / 
                 {% endfor %} ]
             </div>
 

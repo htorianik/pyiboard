@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block addition_requirements %}
+{% block requirements %}
     <link rel='stylesheet' type='text/css' href='/public/styles/button.css'>
     <link rel='stylesheet' type='text/css' href='/public/styles/constructor.css'>
     <script type='text/javascript' src='/public/scripts/post_constructor.js'></script>
@@ -17,6 +17,8 @@
 
         <div class='files-area' id='files-area'>
         </div>
+
+        <div id='chosen-files'></div>
 
         <input class='midnight-blue-flat-button submit-button' id='submit-button' type='button' value='Отправить'>
     </div>

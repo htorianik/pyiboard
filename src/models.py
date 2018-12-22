@@ -42,6 +42,7 @@ class Board(db.Model):
     title = db.Column(db.String(32), nullable=False)
     short = db.Column(db.String(32), nullable=False)
     posts = db.relationship('Post', back_populates='board')
+    files = db.relationship('FileTracker')
 
     def __repr__(self):
         return "<Board %s>" % self.id
@@ -87,6 +88,8 @@ class Post(db.Model):
     body = db.Column(db.String(65536), nullable=False)
     created = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
 
+    files = db.relationship('FileRefference')
+
     def __repr__(self):
         return "<Post %s>" % self.id
 
@@ -129,6 +132,15 @@ class Permission(db.Model):
         return "<Permission %s>" % self.id
 
 
+class FileRefference(db.Model):
+    __tablename__ = 'file_refference'
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    post = db.relationship('Post', back_populates='files')
+    filetracker_id = db.Column(db.Integer, db.ForeignKey('filetracker.id'))
+    filetracker = db.relationship('FileTracker')
+
+
 class Session(db.Model):
     __tablename__ = 'session'
     id = db.Column(db.Integer, primary_key=True)
@@ -149,15 +161,18 @@ class FileTracker(db.Model):
     uploaded = db.Column()
     origin = db.Column(db.String(32))
     ext = db.Column(db.String(32))
+    board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
+    board = db.relationship('Board', back_populates='files')
     uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
 
     @staticmethod
-    def create_from_file(file):
+    def create_from_file(file, board):
         ext = file.filename.rsplit('.', 1)[1].lower()
         origin = file.filename[:-(len(ext) + 1)]
         return FileTracker(
             origin=origin,
-            ext=ext
+            ext=ext,
+            board=board
         )
 
     def to_filename(self):

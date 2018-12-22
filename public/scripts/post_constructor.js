@@ -1,4 +1,7 @@
 window.addEventListener('load', () => {
+
+    const chosen_files = document.getElementById('chosen-files');
+
     document.getElementById('submit-button').addEventListener('click', ()=>{
 
         const parent_post_id = get_query_arg('parent_post_id');
@@ -24,14 +27,17 @@ window.addEventListener('load', () => {
         content_type = '';
         ext = file.name.split('.')[file.name.split('.').length - 1];
 
-        fetch('/upload', {
+        fetch(`${get_board_determinate_suffix()}/upload`, {
             method: 'POST',
             body: data
         }).then(
             res => res.json()
         ).then(
             res => {
-                console.log(res);
+                if(res["Response"] == "OK")
+                {
+                    chosen_files.innerHTML += `<img class='file' src='${get_board_determinate_suffix()}/files/${res["filename"]}'>`;
+                }
             }
         )
     }
