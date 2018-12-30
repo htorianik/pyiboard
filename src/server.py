@@ -2,6 +2,7 @@ import hashlib
 import random
 import string
 import os
+import json
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response, Blueprint
 from functools import wraps
 from config import Config
@@ -150,18 +151,23 @@ def render_me(current_user):
 ######################## BACK END #############################
 
 def associate_with_post(files, post):
-    #filetrackers = list(map(
-    #    lambda filename:
-    #
-    #))
+    filetrackers = list(map(
+        lambda id:
+            FileTracker.query.filter_by(id=id).first(),
+        files
+    ))
 
-    file_refference = FileRefference(
-        filetracker=filetracker,
-        post=post
-    )
+    file_refferences = list(map(
+        lambda filetracker:
+            FileRefference(
+                post=post,
+                filetracker=filetracker
+            ),
+        filetrackers
+    ))
 
-    db.session.add(filetracker)
-    db.ses
+    db.session.add_all(file_refferences)
+    db.session.commit()
 
 
 @app.route('/authentication')
@@ -254,7 +260,7 @@ def index_handle():
 
 
 @app.route('/<board_short>/make_post')
-@check_query_args({'parent_post_id', 'head', 'body'})
+@check_query_args({'parent_post_id', 'head', 'body', 'files'})
 @session_checker()
 def board_make_post_handle(board_short):
     current_board = Board.query.filter_by(
@@ -267,11 +273,13 @@ def board_make_post_handle(board_short):
     parent_post_id = request.args.get('parent_post_id')
     body = request.args.get('body')
     head = request.args.get('head')
+    files = json.loads(request.args.get('files'))
 
     parent_post = Post.query.filter_by(
         id=parent_post_id,
         board=current_board
     ).first()
+
 
     if not parent_post:
         return "<h1>There is no such post :|</h1>"
@@ -284,6 +292,8 @@ def board_make_post_handle(board_short):
     )
     db.session.add(new_post)
     db.session.commit()
+
+    associate_with_post(files, new_post)
 
     thread_post = get_thread_post(parent_post)
     return redirect(f'/{current_board.short}/thread/{thread_post.id}')

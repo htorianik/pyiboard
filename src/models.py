@@ -93,7 +93,7 @@ class Post(db.Model):
     def __repr__(self):
         return "<Post %s>" % self.id
 
-    def dump_to_dict(self, with_children=False, child_number=3):
+    def dump_to_dict(self, with_children=False, with_files=True, child_number=3):
         dumped = {
             'id': self.id,
             'board_id': self.board_id,
@@ -105,7 +105,7 @@ class Post(db.Model):
             'created': dump_time(self.created)
         }
 
-        if(with_children):
+        if with_children:
             children = get_children(self)[:child_number]
             children = list(map(
                 lambda post:
@@ -115,6 +115,17 @@ class Post(db.Model):
 
             dumped.update({
                 'children': children
+            })
+
+        if with_files:
+            files = list(map(
+                lambda file:
+                    file.filetracker.to_filename(full=True),
+                self.files
+            ))
+
+            dumped.update({
+                'files': files
             })
 
         return dumped
@@ -175,8 +186,11 @@ class FileTracker(db.Model):
             board=board
         )
 
-    def to_filename(self):
-        return f"{str(self.id)}.{self.ext}"
+    def to_filename(self, full=False):
+        if full:
+            return f"/{self.board.short}/files/{str(self.id)}.{self.ext}"
+        else:
+            return f"{str(self.id)}.{self.ext}"
 
     def to_origin_filename(self):
         return f"{self.origin}.{self.ext}"
