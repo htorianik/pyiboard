@@ -7,13 +7,10 @@ from src.utils import dump_time, rand_string_wrapper, get_children, GENESIS_POST
 
 def get_thread_post(post):
     current_post = post
-
     while(current_post.parent and current_post.parent.id != GENESIS_POST_ID):
         current_post = Post.query.filter_by(id=current_post.parent.id).first()
-
         if not current_post:
             return None
-
     return current_post
 
 class User(db.Model):
@@ -99,7 +96,6 @@ class Post(db.Model):
             'board_id': self.board_id,
             'parent_id': self.parent_id,
             'children_ids': list(map(lambda child : child.id, self.children)),
-            'board_short': self.board.short, 
             'head': self.head,
             'body': parse_to_markup(self.body),
             'created': dump_time(self.created)

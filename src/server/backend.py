@@ -8,97 +8,10 @@ from config import Config
 from src.database import db
 from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from src.utils import GENESIS_POST_ID, rand_string, hash_password
-from src.engine import register_user, login_user
+from src.engine import register_user, login_user, associate_with_post, get_board_by_short
 from src.server.utils import check_query_args, get_user, session_checker, errors_handler
 
 app = Blueprint('backend', __name__, template_folder=Config.TEMPLATES_DIR)
-
-######################## FRONT END ############################
-
-
-def render_thread_post_constructor(current_board, callback_url=None):
-    boards = Board.query.all()
-    return render_template(
-        'thread_post_constructor.html',
-        boards=boards,
-        current_board=current_board,
-        callback_url=callback_url
-    )
-
-
-def render_post_constructor(current_board, parent_post, callback_url=None):
-    boards = Board.query.all()
-    return render_template(
-        'post_constructor.html',
-        boards=boards,
-        current_board=current_board,
-        parent_post=parent_post,
-        callback_url=callback_url
-    )
-
-
-def render_thread(current_board, thread_post):
-    boards = Board.query.all()
-    posts = Post.query.all()
-
-    posts = Post.query.all()
-    posts = list(filter(
-        lambda post : 
-            get_thread_post(post) == thread_post and post != thread_post,
-        posts   
-    ))
-    posts = list(map(
-        lambda post: 
-            post.dump_to_dict(),
-        posts
-    ))
-    thread_post = thread_post.dump_to_dict()
-
-    return render_template(
-        'thread.html',
-        boards=boards,
-        current_board=current_board,
-        thread_post=thread_post,
-        posts=posts
-    )
-
-
-def render_login():
-    boards = Board.query.all()
-    return render_template('login.html', boards=boards)
-
-
-def render_registration():
-    boards = Board.query.all()
-    return render_template('registration.html', boards=boards)
-
-
-def render_me(current_user):
-    boards = Board.query.all()
-    current_user = current_user.dump_to_dict()
-
-    return render_template('me.html', boards=boards, current_user=current_user) 
-
-######################## BACK END #############################
-
-def associate_with_post(files, post):
-    filetrackers = list(map(
-        lambda id:
-            FileTracker.query.filter_by(id=id).first(),
-        files
-    ))
-
-    file_refferences = list(map(
-        lambda filetracker:
-            FileRefference(
-                post=post,
-                filetracker=filetracker
-            ),
-        filetrackers
-    ))
-
-    db.session.add_all(file_refferences)
-    db.session.commit()
 
 
 @app.route('/authentication')
@@ -141,34 +54,26 @@ def logout_handle():
     return response
 
 
-@app.route('/')
-@session_checker()
-def index_handle():
-    boards = Board.query.all()
-    return render_template('index.html', boards=boards)
-
-
 @app.route('/<board_short>/make_post')
 @check_query_args({'parent_post_id', 'head', 'body', 'files'})
 @session_checker()
 def board_make_post_handle(board_short):
-    current_board = Board.query.filter_by(
-        short=board_short
-    ).first()
-
-    if not current_board:
-        return "<h1>There is no such board :|</h1>"
-
-    parent_post_id = request.args.get('parent_post_id')
+    board = get_board_by_short(board_short)
+    parent_post_id = int(request.args.get('parent_post_id'))
     body = request.args.get('body')
     head = request.args.get('head')
     files = json.loads(request.args.get('files'))
 
-    parent_post = Post.query.filter_by(
-        id=parent_post_id,
-        board=current_board
-    ).first()
-
+    parent_post = None
+    if parent_post_id == 1:
+        parent_post = Post.query.filter_by(
+            id=parent_post_id
+        ).first()
+    else:
+        parent_post = Post.query.filter_by(
+            id=parent_post_id,
+            board=board
+        ).first()
 
     if not parent_post:
         return "<h1>There is no such post :|</h1>"
@@ -177,17 +82,17 @@ def board_make_post_handle(board_short):
         parent=parent_post,
         head=head, 
         body=body,
-        board=current_board
+        board=board
     )
     db.session.add(new_post)
     db.session.commit()
 
     associate_with_post(files, new_post)
 
-    thread_post = get_thread_post(parent_post)
-    return redirect(f'/{current_board.short}/thread/{thread_post.id}')
+    thread_post = get_thread_post(new_post)
+    return redirect(f'/{board.short}/thread/{thread_post.id}')
 
-
+"""
 @app.route('/<board_short>/make_thread_post')
 @check_query_args({'head', 'body'})
 @session_checker()
@@ -219,61 +124,7 @@ def board_make_thred_post(board_short):
     associate_with_post(files, new_post)
 
     return redirect(f'/{current_board.short}')
-
-
-
-@app.route('/<board_short>/post_constructor')
-@check_query_args({'parent_post_id'})
-@session_checker()
-def board_post_constructor_handle(board_short):
-    current_board = Board.query.filter_by(short=board_short).first()
-
-    if not current_board:
-        return "<h1>There is no such</h1>"
-
-    parent_post_id = request.args.get('parent_post_id')
-
-    parent_post = Post.query.filter_by(id=parent_post_id).first()
-
-    return render_post_constructor(current_board, parent_post)
-
-
-@app.route('/<board_short>/thread/<thread_post_id>')
-@session_checker()
-def board_thread_post_handle(board_short, thread_post_id):
-    current_board = Board.query.filter_by(short=board_short).first()
-
-    if not current_board:
-        return "<h1>There is no board</h1>"
-
-    thread_post = Post.query.filter_by(
-        id=thread_post_id,
-        board=current_board,
-        parent_id=GENESIS_POST_ID
-    ).first()
-
-    if not thread_post:
-        return "<h1> There is no such thread post in this board :| </h1>"
-
-    return render_thread(current_board=current_board, thread_post=thread_post)
-    
-
-@app.route('/registration')
-def registration_handle():
-    return render_registration()
-
-
-@app.route('/login')
-def login_handle():
-    return render_login()
-
-
-@app.route('/me')
-@session_checker()
-@get_user()
-def me_handle(current_user):
-    return render_me(current_user)
-
+"""
 
 @app.route('/public/<path:filename>')
 def public_handle(filename):
@@ -349,10 +200,3 @@ def upload_handle(board_short):
         'Response': 'OK',
         'filename': filetracker.to_filename()
     })
-
-### TEST FRONTEND ###
-
-@app.route('/debug', methods=['GET'])
-def index_debug_handle():
-    boards = Board.query.all()
-    return render_template('index_debug.html', boards=boards)

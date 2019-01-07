@@ -8,7 +8,7 @@ from flask import Flask
 from config import Config
 from src.database import db
 from src.models import Board, Post, User
-from src.server import hash_password
+from src.engine.utils import hash_password
 
 if not os.path.exists(Config.VAR_DIR):
     os.makedirs(Config.VAR_DIR)
