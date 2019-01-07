@@ -99,7 +99,7 @@ class Post(db.Model):
             'board_id': self.board_id,
             'parent_id': self.parent_id,
             'children_ids': list(map(lambda child : child.id, self.children)),
-            'board': self.board.short, 
+            'board_short': self.board.short, 
             'head': self.head,
             'body': parse_to_markup(self.body),
             'created': dump_time(self.created)
@@ -112,7 +112,6 @@ class Post(db.Model):
                     post.dump_to_dict(),
                 children
             ))
-
             dumped.update({
                 'children': children
             })
@@ -123,7 +122,6 @@ class Post(db.Model):
                     file.filetracker.to_filename(full=True),
                 self.files
             ))
-
             dumped.update({
                 'files': files
             })

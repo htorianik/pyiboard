@@ -4,7 +4,6 @@
     {{ super() }}
     <link rel='stylesheet' type='text/css' href='/public/styles/post.css'>
     <link rel='stylesheet' type='text/css' href='/public/styles/thread.css'>
-    <link rel='stylesheet' type='text/css' href='/public/styles/file.css'>
 {% endblock %}
 
 {% block content %}
@@ -21,8 +20,8 @@
         <div class='inline'>{{ thread_post.created }} | </div>
         <div class='inline'>пост но. {{ thread_post.id }} | </div>
         <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ thread_post.id }}'>[ответить]</a></div>
-        <div class='files'>{% for filename in thread_post.files %} <img href='{{ filename }}' class='file'> {% endfor %}</div>
         {% for child_id in thread_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+        <div class='files'>{% for filename in thread_post.files %} <img href='{{ filename }}' class='file'> {% endfor %}</div>
         <div class='body'>
             {{ thread_post.body }}
         </div>
@@ -33,9 +32,9 @@
             <a class='post-label'>>></a><div class='inline'>{{ post.head }} | </div>
             <div class='inline'>{{ post.created }} | </div>
             <div class='inline'>пост но. {{ post.id }} | </div>
-            <div class='inline'><a href='/board/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
-            <div class='files'>{% for filename in post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
+            <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
             {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+            <div class='files'>{% for filename in post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
             <div class='body'>
                 <a href='#'>>>{{ post.parent_id }}</a><br>
                 {{ post.body }}

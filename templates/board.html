@@ -24,6 +24,7 @@
             <div class='inline'><a href='/{{ current_board.short }}/thread/{{ post.id }}'>[к треду]</a></div>
             <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
             {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+            <div class='files'>{% for filename in post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
             <div class='body'>
                 {{ post.body }}
             </div>
@@ -37,6 +38,7 @@
                 <div class='inline'>пост но. {{ child_post.id }} | </div>
                 <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
                 {% for child_id in child_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+                <div class='files'>{% for filename in child_post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
                 <div class='body'>
                     <a href='#'>>>{{ child_post.parent_id }}</a><br>
                     {{ child_post.body }}

@@ -3,7 +3,7 @@
 import os
 import sys
 from flask import Flask
-from src import app1
+from src.server import app
 
-app1.run(port=5000)
+app.run(port=5000)
 

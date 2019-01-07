@@ -4,99 +4,16 @@ import string
 import os
 import json
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response, Blueprint
-from functools import wraps
 from config import Config
 from src.database import db
 from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from src.utils import GENESIS_POST_ID, rand_string, hash_password
 from src.engine import register_user, login_user
+from src.server.utils import check_query_args, get_user, session_checker, errors_handler
 
-app = Blueprint('/', __name__, template_folder=Config.TEMPLATES_DIR)
-
-######################## UTILS ################################
-
-def check_query_args(required_keys):
-    def real_decorator(func):
-        @wraps(func)
-        def wrapper(**argd):
-            given_keys = set(request.args.keys())
-
-            if not required_keys.issubset(given_keys):
-                return jsonify({
-                    "Response": "You didn't provide all of required arguments",
-                    "Missing_arguments": list( required_keys.difference(given_keys) )
-                })
-            else:
-                return func(**argd)
-
-        return wrapper
-    return real_decorator
-
-
-def session_checker():
-    def real_decorator(func):
-        @wraps(func)
-        def wrapper(**argd):
-            session_id = request.cookies.get('session_id')
-            session_token = request.cookies.get('session_token')
-            user_agent = request.headers.get('User-Agent')
-
-            current_session = Session.query.filter_by(
-                id=session_id,
-                token=session_token,
-                user_agent=user_agent
-            ).first()
-
-            if not current_session:
-                return redirect('/login')
-            else:
-                return func(**argd)
-
-        return wrapper
-    return real_decorator
-
-
-def get_user():
-    def real_decorator(func):
-        @wraps(func)
-        def wrapper(**argd):
-            session_id = request.cookies.get('session_id')
-            current_session = Session.query.filter_by(id=session_id).first()
-            return func(current_user=current_session.user, **argd)
-        return wrapper
-    return real_decorator
-
-
-def errors_handler():
-    def real_decorator(func):
-        @wraps(func)
-        def wrapper(**argd):
-            try:
-                return func(**argd)
-            except Exception as err:
-                return jsonify({
-                    "success": False, 
-                    "response": str(err)
-                })
-        return wrapper
-    return real_decorator
+app = Blueprint('backend', __name__, template_folder=Config.TEMPLATES_DIR)
 
 ######################## FRONT END ############################
-
-def render_board(current_board):
-    boards = Board.query.all()
-    thread_posts = Post.query.filter_by(
-        parent_id=GENESIS_POST_ID,
-        board=current_board
-    ).all()
-
-    thread_posts = list(map(
-        lambda post: 
-            post.dump_to_dict(with_children=True, child_number=3),
-        thread_posts
-    ))
-
-    return render_template('board.html', boards=boards, current_board=current_board, posts=thread_posts)
 
 
 def render_thread_post_constructor(current_board, callback_url=None):
@@ -339,26 +256,6 @@ def board_thread_post_handle(board_short, thread_post_id):
         return "<h1> There is no such thread post in this board :| </h1>"
 
     return render_thread(current_board=current_board, thread_post=thread_post)
-
-
-@app.route('/<board_short>')
-@session_checker()
-def board_handle(board_short):
-    current_board = Board.query.filter_by(
-        short=board_short
-    ).first()
-
-    if not current_board:
-        return "<h1>There is no such</h1>"
-
-    threads = Post.query.filter_by(
-        parent_id = GENESIS_POST_ID,
-        board_id = current_board.id
-    ).all()
-
-    threads = list(map(lambda thread : thread.dump_to_dict(), threads))
-
-    return render_board(current_board)
     
 
 @app.route('/registration')
