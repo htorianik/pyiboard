@@ -1,63 +1,24 @@
+.post-literal {
+    font-size: 20px;
+}
+
 .post {
-    background-color: lightcoral;
-    border-color: grey;
-    border-style: solid;
-    border-width: 1px;
-    margin-left: 2%;
-    margin-top: 3%;
-    width: 93%;
+    display: grid;
+    grid-template-rows: 100px auto;
+    grid-template-areas:
+    "info"
+    "body";
 }
 
-.child-post {
-    background-color: lightpink;
-    margin-left: 5%;
-    margin-top: 1.5%;
-    border-color: grey;
-    border-style: solid;
-    border-width: 1px;
-    width: 90%;
+.post .head {
+
 }
 
-.post-label {
-    color: grey;
-    font-size: 12px;
-}
+.post .body {
+    grid-area: body;
+}   
 
-.child-id {
-    font-size: 12px;
-}
-
-.body {
-    padding: 25px;
-}
-
-.post a {
-    text-decoration: none;
-}
-
-.child-post a {
-    text-decoration: none;
-}
-
-.title-link {
-    position: relative;
-    display: block;
-    text-align: center;
-    width: 40%;
-    margin: auto;
-    padding: 10px;
-    font-size: 30px;
-}
-
-.files {
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 10px;
-}
-
-.file {
-    padding-left: 2px;
-    padding-right: 2px;
-    width: 50px;
-    height: 50px;
+.post .info {
+    grid-area: info;
+    font-size: 20px;
 }
