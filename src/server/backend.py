@@ -8,8 +8,9 @@ from config import Config
 from src.database import db
 from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from src.utils import GENESIS_POST_ID, rand_string, hash_password
-from src.engine import register_user, login_user, associate_with_post, get_board_by_short
+from src.engine import register_user, login_user, associate_with_post, get_board_by_short, get_last_upload_id
 from src.server.utils import check_query_args, get_user, session_checker, errors_handler
+from src.utils import get_ext
 
 app = Blueprint('backend', __name__, template_folder=Config.TEMPLATES_DIR)
 
@@ -169,6 +170,14 @@ def files_handle(filename, board_short):
     )
 
 
+"""
+get resolution of video and image file:
+>>ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 uoloads/9.webm
+>>1280x1080
+get size of any file:
+>>ls -lh ./uploads/1.png | awk '{print $5}'
+>>228
+"""
 @app.route('/<board_short>/upload', methods=['POST'])
 def upload_handle(board_short):
     current_board = Board.query.filter_by(
@@ -191,11 +200,15 @@ def upload_handle(board_short):
             'Response': 'ERR'
         })
 
-    filetracker = FileTracker.create_from_file(file, board=current_board)
+    file_id = get_last_upload_id() + 1
+    file_ext = get_ext(file.filename)
+    save_path = os.path.join(Config.FLASK_CONFIG.get("UPLOAD_FOLDER"), f"{file_id}.{file_ext}")
+    file.save(save_path)
+
+    filetracker = FileTracker.create_from_file(path=save_path, board=current_board)
     db.session.add(filetracker)
     db.session.commit()
-
-    file.save(os.path.join(Config.FLASK_CONFIG.get("UPLOAD_FOLDER"), filetracker.to_filename()))
+    
     return jsonify({
         'Response': 'OK',
         'filename': filetracker.to_filename()

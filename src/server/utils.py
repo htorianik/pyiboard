@@ -1,4 +1,6 @@
 
+import subprocess
+import os
 from functools import wraps
 from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response, Blueprint

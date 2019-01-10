@@ -41,16 +41,33 @@
                         {% endfor %}
                     </span>
                 </div>
-                <div class='body'>
-                    <!--
-                    <div class='files'>
-                        {% for filename in post.files %} 
-                        <a href='{{ filename }}'>
-                            <img src='{{ filename }}' class='file'>
-                        </a> 
-                        {% endfor %}
-                    </div>-->
-                    {{ post.body }}
+                <div class='
+                    {% if post.files|length == 0 %}
+                        body-no-files
+                    {% elif post.files|length == 1 %}
+                        body-one-file
+                    {% else %}
+                        body-many-files
+                    {% endif %}
+                '>
+                    <div class='body-files'>
+                    {% for file in post.files %} 
+                        <div class='body-file'>
+                            <span class='file-info'>
+                                {{ file.id }}.{{ file.ext }} ({{ file.resolution }}, {{ file.size }}б)
+                            </span>
+                            <span>
+                                <a href='{{ file.path }}'>
+                                    <img class='body-file-img' src='{{ file.path }}' class='file'>
+                                </a> 
+                            </span>
+                        </div>
+                    {% endfor %}
+                    </div>
+
+                    <div class='body-text'>
+                        {{ post.body }}
+                    </div>
                 </div>
             </div>
 
@@ -75,17 +92,39 @@
                                 {% endfor %}
                             </span>
                     </div>
-                    <div class='body'>
-                        <!--
-                        <div class='files'>
-                            {% for filename in post.files %} 
-                            <a href='{{ filename }}'>
-                                <img src='{{ filename }}' class='file'>
-                            </a> 
-                            {% endfor %}
-                        </div>-->
+                    <div class='
+                        {% if child_post.files|length == 0 %}
+                            body-no-files
+                        {% elif child_post.files|length == 1 %}
+                            body-one-file
+                        {% else %}
+                            body-many-files
+                        {% endif %}
+                    '>
+                        
+                        <div class='body-files'>
+                        {% for file in child_post.files %} 
+                            <div class='body-file'>
+                                <span class='file-info'>
+                                    {{ file.id }}.{{ file.ext }} ({{ file.resolution }}, {{ file.size }}б)
+                                </span>
+                                <a href='{{ file.path }}'>
+                                    <img class='body-file-img' src='{{ file.path }}' class='file'>
+                                </a> 
+                            </div>
+                        {% endfor %}
+                        </div>
 
-                        {{ post.body }}
+                        <div class='body-text'>
+                            <div class='parent-ref'>
+                                Ответ на 
+                                <a href='#'>
+                                    [>>{{ child_post.parent_id }}]
+                                </a>
+                                :
+                            </div>
+                            {{ post.body }}
+                        </div>
                     </div>
                     <!--
                     <div class='inline'>{{ child_post.head }} | </div>

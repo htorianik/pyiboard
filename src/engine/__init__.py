@@ -117,3 +117,12 @@ def get_posts_in_thread_dumped(thread_post):
         posts_in_thread
     ))
     
+
+def get_last_upload_id():
+    last_element = FileTracker.query.order_by(FileTracker.id.desc()).first()
+    if not last_element:
+        return 0
+    else:
+        return last_element.id
+
+

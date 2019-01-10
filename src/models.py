@@ -3,7 +3,7 @@ import datetime
 import random
 from src.database import db
 from src.parser import parse_to_markup
-from src.utils import dump_time, rand_string_wrapper, get_children, GENESIS_POST_ID
+from src.utils import dump_time, rand_string_wrapper, get_children, GENESIS_POST_ID, get_ext, get_file_resolution, get_file_size
 
 def get_thread_post(post):
     current_post = post
@@ -115,7 +115,7 @@ class Post(db.Model):
         if with_files:
             files = list(map(
                 lambda file:
-                    file.filetracker.to_filename(full=True),
+                    file.filetracker.dump_to_dict(full=True),
                 self.files
             ))
             dumped.update({
@@ -164,20 +164,20 @@ class FileTracker(db.Model):
     __tablename__ = 'filetracker'
     id = db.Column(db.Integer, primary_key=True)
     uploaded = db.Column()
-    origin = db.Column(db.String(32))
     ext = db.Column(db.String(32))
+    resolution = db.Column(db.String(32))
+    size = db.Column(db.String(32))
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='files')
     uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
 
     @staticmethod
-    def create_from_file(file, board):
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        origin = file.filename[:-(len(ext) + 1)]
+    def create_from_file(path, board):
         return FileTracker(
-            origin=origin,
-            ext=ext,
-            board=board
+            ext=get_ext(path),
+            board=board,
+            resolution=get_file_resolution(path),
+            size=get_file_size(path)   
         )
 
     def to_filename(self, full=False):
@@ -186,5 +186,13 @@ class FileTracker(db.Model):
         else:
             return f"{str(self.id)}.{self.ext}"
 
-    def to_origin_filename(self):
-        return f"{self.origin}.{self.ext}"
+    def dump_to_dict(self, full=False):
+        return {
+            'id': self.id,
+            'path': self.to_filename(full=full),
+            'ext': self.ext,
+            'board_id': self.board_id,
+            'size': self.size,
+            'resolution': self.resolution,
+            'uploaded': dump_time(self.uploaded)
+        }

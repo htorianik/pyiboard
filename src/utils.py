@@ -3,6 +3,8 @@ import datetime
 import hashlib
 import string
 import random
+import subprocess
+import os
 
 from config import Config
 
@@ -42,3 +44,27 @@ def rand_string(length):
 
 def hash_password(login, password):
     return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
+
+
+def get_file_size(filename):
+    ls_process = subprocess.Popen(['ls', '-lh', filename], stdout=subprocess.PIPE)
+    awk_process = subprocess.Popen(['awk', '{print $5}'], stdin=ls_process.stdout, stdout=subprocess.PIPE)
+    output, error = awk_process.communicate()
+
+    if error:
+        raise ValueError()
+    return output.decode('utf-8')[:-1]
+
+
+def get_file_resolution(filename):
+    bash_command = "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 %s" % (filename)
+    process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+    output, error = process.communicate()
+
+    if error:
+        raise ValueError()
+    return output.decode('utf-8')[:-1]
+
+
+def get_ext(filename):
+    return os.path.splitext(filename)[1][1:]

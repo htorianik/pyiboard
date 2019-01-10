@@ -4,19 +4,82 @@
 
 .post {
     display: grid;
-    grid-template-rows: 100px auto;
+    grid-template-rows: 30px auto;
     grid-template-areas:
     "info"
     "body";
+
+    border: 4px solid rgba(125, 125, 125, .5);
+    border-radius: 20px;
 }
 
 .post .head {
-
+    color: #001a41;
 }
 
-.post .body {
+.post .created {
+    color: #00b4fb;
+}
+
+.post .number {
+    color: #ff8422;
+}
+
+.post .body-no-files {
     grid-area: body;
+    display: grid;
+    grid-template-columns: 20px auto;
+    grid-template-rows: auto 10px;
+    grid-template-areas: 
+    ". body-text"
+    ". ."
 }   
+
+.post .body-one-file {
+    grid-area: body;
+    display: grid;
+    grid-template-columns: 20px 200px 20px auto;
+    grid-template-rows: auto 10px;
+    grid-template-areas: 
+    ". files . body-text"
+    ". .     . ."
+}
+
+.post .body-many-files {
+    grid-area: body;
+    display: grid;
+    grid-template-columns: 20px auto;
+    grid-template-rows: auto auto 10px;
+    grid-template-areas: 
+    ". files"
+    ". body-text"
+    ". ."
+}
+
+.post .body-text {
+    grid-area: body-text;
+}
+
+.post .body-files {
+    grid-area: files;
+    display: inline-grid;
+    grid-template-columns: 200px 200px auto;
+    grid-column-gap: 15px; 
+}
+
+.post .body-file-img {
+    width: 200px;
+}
+
+.post .body-file {
+    display: grid;
+    grid-template-rows: 20px auto;
+}
+
+.post .file-info {
+    color: grey;
+    font-size: 14px;
+}
 
 .post .info {
     grid-area: info;
