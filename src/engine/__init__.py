@@ -1,5 +1,5 @@
 from src.database import db
-from src.models import User, Session, Post, Board, FileTracker, FileRefference
+from src.database import User, Session, Post, Board, FileTracker, FileRefference
 from src.engine.utils import hash_password
 
 

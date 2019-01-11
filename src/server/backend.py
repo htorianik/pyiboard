@@ -6,7 +6,7 @@ import json
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect, make_response, Blueprint
 from config import Config
 from src.database import db
-from src.models import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
+from src.database import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
 from src.utils import GENESIS_POST_ID, rand_string, hash_password
 from src.engine import register_user, login_user, associate_with_post, get_board_by_short, get_last_upload_id
 from src.server.utils import check_query_args, get_user, session_checker, errors_handler

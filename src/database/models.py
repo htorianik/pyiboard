@@ -1,7 +1,7 @@
 import string
 import datetime
 import random
-from src.database import db
+from src.database.database import db
 from src.parser import parse_to_markup
 from src.utils import dump_time, rand_string_wrapper, get_children, GENESIS_POST_ID, get_ext, get_file_resolution, get_file_size
 
