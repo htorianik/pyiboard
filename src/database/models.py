@@ -8,7 +8,7 @@ from src.utils import Utils
 
 def get_thread_post(post):
     current_post = post
-    while(current_post.parent and current_post.parent.id != GENESIS_POST_ID):
+    while(current_post.parent and current_post.parent.id != Utils.GENESIS_POST_ID):
         current_post = Post.query.filter_by(id=current_post.parent.id).first()
         if not current_post:
             return None
@@ -156,10 +156,9 @@ class Session(db.Model):
 class FileTracker(db.Model):
     __tablename__ = 'filetracker'
     id = db.Column(db.Integer, primary_key=True)
-    uploaded = db.Column()
     ext = db.Column(db.String(32))
-    resolution = db.Column(db.String(32))
-    size = db.Column(db.String(32))
+    uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
+    info = db.Column(db.String(256))
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='files')
     uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
@@ -183,13 +182,21 @@ class FileTracker(db.Model):
         else:
             return f"{str(self.id)}.{self.ext}"
 
+    def preview_path(self, full=False):
+        if self.ext in Utils.VIDEOS_EXTS:
+            if full:
+                return f"/{self.board.short}/files/{str(self.id)}_preview.png"
+            else:
+                return f"{str(self.id)}_preview.png"
+        else:
+            return self.to_filename(full=full)
+
     def dump_to_dict(self, full=False):
         return {
             'id': self.id,
             'path': self.to_filename(full=full),
+            'preview_path': self.preview_path(full=full),
+            'info': self.info,
             'ext': self.ext,
-            'board_id': self.board_id,
-            'size': self.size,
-            'resolution': self.resolution,
             'uploaded': Utils.dump_time(self.uploaded)
         }

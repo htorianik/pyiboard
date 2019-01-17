@@ -11,6 +11,9 @@ from config import Config
 class Utils:
     GENESIS_POST_ID = 1
 
+    VIDEOS_EXTS = ['mp4', 'webm', 'avi', 'mov', 'wmv']
+    IMAGES_EXTS = ['jpeg', 'jpg', 'png', 'bmp', 'gif']
+
     @staticmethod
     def dump_time(t):
         return t.strftime('%Y-%m-%d %H:%M:%S')
@@ -82,7 +85,19 @@ class Utils:
 
         if error:
             raise ValueError()
-        return output.decode('utf-8')[:-1]
+        length = output.decode('utf-8')[:-1]
+        return length[:length.find('.')]
 
+
+    @staticmethod
+    def cut_first_frame(input_file, output_file):
+        bash_command = "ffmpeg -i %s -vframes 1 -f image2 %s" % (input_file, output_file)
+        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        if error:
+            raise ValueError()
+
+
+    @staticmethod
     def get_ext(filename):
         return os.path.splitext(filename)[1][1:]

@@ -37,8 +37,8 @@ window.addEventListener('load', () => {
             res => {
                 if(res["Response"] == "OK")
                 {
-                    chosen_files.innerHTML += `<img class='file' src='${get_board_determinate_suffix()}/files/${res["filename"]}'>`;
-                    files_to_attach.push(res["filename"].split('.')[0]);
+                    chosen_files.innerHTML += `<img class='file' src='${res["filename"]}'>`;
+                    files_to_attach.push(res["id"]);
                     console.log(files_to_attach)
                 }
             }

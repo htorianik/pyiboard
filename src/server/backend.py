@@ -136,36 +136,9 @@ def public_handle(filename):
 
 @app.route('/<board_short>/files/<path:filename>')
 def files_handle(filename, board_short):
-    current_board = Board.query.filter_by(
-        short=board_short
-    ).first()
-
-    if not current_board:
-        return jsonify({
-            'Response': 'ERR'
-        })
-
-    filetracker = list(filter(
-        lambda filetracker:
-            filetracker.to_filename() == filename,
-        FileTracker.query.all()
-        ))
-
-    if not filetracker:
-        return jsonify({
-            'Response': 'ERR'
-        })
-
-    filetracker = filetracker[0]
-
-    if filetracker.board != current_board:
-        return jsonify({
-            'Response': 'ERR'
-        })
-
     return send_from_directory(
         Config.UPLOAD_DIR,
-        filetracker.to_filename()
+        filename
     )
 
 
@@ -179,36 +152,17 @@ get size of any file:
 """
 @app.route('/<board_short>/upload', methods=['POST'])
 def upload_handle(board_short):
-    current_board = Board.query.filter_by(
-        short=board_short
-    ).first()
-
-    if not current_board:
+    filedata = None
+    try:
+        filedata = Engine.upload_file(request.files, board_short)
+    except Exception as exc:
+        raise exc
         return jsonify({
             'Response': 'ERR'
         })
 
-    if 'file' not in request.files:
-        return jsonify({
-            'Reponse': 'ERR'
-        })
-
-    file = request.files['file']
-    if not file.filename:
-        return jsonify({
-            'Response': 'ERR'
-        })
-
-    file_id = Engine.get_last_upload_id() + 1
-    file_ext = Utils.get_ext(file.filename)
-    save_path = os.path.join(Config.FLASK_CONFIG.get("UPLOAD_FOLDER"), f"{file_id}.{file_ext}")
-    file.save(save_path)
-
-    filetracker = FileTracker.create_from_file(path=save_path, board=current_board)
-    db.session.add(filetracker)
-    db.session.commit()
-    
-    return jsonify({
-        'Response': 'OK',
-        'filename': filetracker.to_filename()
-    })
+    res = {
+        'Response': 'OK'
+    }
+    res.update(filedata)
+    return jsonify(res)

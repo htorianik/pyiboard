@@ -54,11 +54,11 @@
                     {% for file in post.files %} 
                         <div class='body-file'>
                             <span class='file-info'>
-                                {{ file.id }}.{{ file.ext }} ({{ file.resolution }}, {{ file.size }}б)
+                                {{ file.id }}.{{ file.ext }} ({{ file.info }})
                             </span>
                             <span>
                                 <a href='{{ file.path }}'>
-                                    <img class='body-file-img' src='{{ file.path }}' class='file'>
+                                    <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
                                 </a> 
                             </span>
                         </div>
@@ -106,10 +106,10 @@
                         {% for file in child_post.files %} 
                             <div class='body-file'>
                                 <span class='file-info'>
-                                    {{ file.id }}.{{ file.ext }} ({{ file.resolution }}, {{ file.size }}б)
+                                    {{ file.id }}.{{ file.ext }} ({{ file.info }})
                                 </span>
                                 <a href='{{ file.path }}'>
-                                    <img class='body-file-img' src='{{ file.path }}' class='file'>
+                                    <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
                                 </a> 
                             </div>
                         {% endfor %}
@@ -123,7 +123,7 @@
                                 </a>
                                 :
                             </div>
-                            {{ post.body }}
+                            {{ child_post.body }}
                         </div>
                     </div>
                     <!--

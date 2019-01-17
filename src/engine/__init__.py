@@ -1,6 +1,9 @@
+import os
+from config import Config
 from src.database import db
 from src.database import User, Session, Post, Board, FileTracker, FileRefference
 from src.engine.utils import hash_password
+from src.utils import Utils
 
 class Engine:
     @staticmethod
@@ -12,7 +15,7 @@ class Engine:
     def get_post_by_id(id):
         return Post.query.filter_by(id=id).first()
 
-        
+
     @staticmethod
     def register_user(login, password):
         if User.query.filter_by(login=login).first():
@@ -116,7 +119,7 @@ class Engine:
     def get_posts_in_thread_dumped(thread_post):
         posts_in_thread = list(filter(
             lambda post:
-                get_thread_of_post(post) == thread_post and post != thread_post,
+                Engine.get_thread_of_post(post) == thread_post and post != thread_post,
             Post.query.all()    
         ))
 
@@ -137,7 +140,9 @@ class Engine:
 
 
     @staticmethod
-    def upload_file(file, board_short):
+    def upload_file(files, board_short):
+        file = files.get('file')
+
         if (not file) or (not file.filename):
             raise ValueError()
 
@@ -145,7 +150,51 @@ class Engine:
         if not board:
             raise ValueError()
 
+        print("NOW WE WILL CALC EXT")
+
+        filename = file.filename
+        file_id = Engine.get_last_upload_id() + 1
+        file_ext = Utils.get_ext(filename)
+
+        print("EXT: ", file_ext)
+
+        if file_ext not in (Utils.VIDEOS_EXTS + Utils.IMAGES_EXTS):
+            raise ValueError()
+
+        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], f"{file_id}.{file_ext}")        
+        try:
+            file.save(save_path)
+        except Exception as exc:
+            raise exc 
+
+        preview = save_path
+        info = f"{Utils.get_file_size(save_path)}b, {Utils.get_file_resolution(save_path)}px"
+        if file_ext in Utils.VIDEOS_EXTS:
+            new_preview = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], f"{file_id}_preview.png") 
+            try:
+                Utils.cut_first_frame(save_path, new_preview)
+            except Exception as exc:
+                raise exc
+            preview = new_preview
+            info = info + f", {Utils.get_video_length(save_path)}s"
+
+        filetracker = FileTracker(
+            ext=file_ext,
+            info=info,
+            board=board
+        )
+
+        db.session.add(filetracker)
+        db.session.commit()
+
+        return {
+            'filename': filetracker.to_filename(full=True),
+            'id': filetracker.id
+        }
+
         
+
+
 
         
 
