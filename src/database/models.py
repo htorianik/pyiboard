@@ -1,9 +1,10 @@
 import string
 import datetime
 import random
+from config import Config
 from src.database.database import db
 from src.parser import parse_to_markup
-from src.utils import dump_time, rand_string_wrapper, get_children, GENESIS_POST_ID, get_ext, get_file_resolution, get_file_size
+from src.utils import Utils
 
 def get_thread_post(post):
     current_post = post
@@ -29,7 +30,7 @@ class User(db.Model):
         return {
             'id': self.id,
             'login': self.login,
-            'registered': dump_time(self.registered)
+            'registered': Utils.dump_time(self.registered)
         }
 
 
@@ -73,22 +74,15 @@ class Board(db.Model):
 class Post(db.Model):
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
-
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='posts')
-
     children = db.relationship('Post', back_populates='parent')
     parent_id = db.Column(db.Integer, db.ForeignKey('post.id'))
     parent = db.relationship('Post', remote_side=[id], back_populates='children')
-    
     head = db.Column(db.String(256), nullable=False)
     body = db.Column(db.String(65536), nullable=False)
     created = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
-
     files = db.relationship('FileRefference')
-
-    def __repr__(self):
-        return "<Post %s>" % self.id
 
     def dump_to_dict(self, with_children=False, with_files=True, child_number=3):
         dumped = {
@@ -98,11 +92,11 @@ class Post(db.Model):
             'children_ids': list(map(lambda child : child.id, self.children)),
             'head': self.head,
             'body': parse_to_markup(self.body),
-            'created': dump_time(self.created)
+            'created': Utils.dump_time(self.created)
         }
 
         if with_children:
-            children = get_children(self)[:child_number]
+            children = Utils.get_children(self)[:child_number]
             children = list(map(
                 lambda post:
                     post.dump_to_dict(),
@@ -121,7 +115,6 @@ class Post(db.Model):
             dumped.update({
                 'files': files
             })
-
         return dumped
 
 
@@ -151,7 +144,7 @@ class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', back_populates='sessions')
-    token = db.Column(db.String(32), default=rand_string_wrapper(24), nullable=False)
+    token = db.Column(db.String(32), default=Utils.rand_string_wrapper(24), nullable=False)
     opened = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     ip = db.Column(db.String(32), default='0.0.0.0')
     user_agent = db.Column(db.String(32), nullable=False)
@@ -172,12 +165,16 @@ class FileTracker(db.Model):
     uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
 
     @staticmethod
+    def save_and_create(file, board):
+        pass
+
+    @staticmethod
     def create_from_file(path, board):
         return FileTracker(
-            ext=get_ext(path),
+            ext=Utils.get_ext(path),
             board=board,
-            resolution=get_file_resolution(path),
-            size=get_file_size(path)   
+            resolution=Utils.get_file_resolution(path),
+            size=Utils.get_file_size(path)   
         )
 
     def to_filename(self, full=False):
@@ -194,5 +191,5 @@ class FileTracker(db.Model):
             'board_id': self.board_id,
             'size': self.size,
             'resolution': self.resolution,
-            'uploaded': dump_time(self.uploaded)
+            'uploaded': Utils.dump_time(self.uploaded)
         }

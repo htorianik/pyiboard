@@ -8,63 +8,81 @@ import os
 
 from config import Config
 
-GENESIS_POST_ID = 1
+class Utils:
+    GENESIS_POST_ID = 1
 
-def dump_time(t):
-    return t.strftime('%Y-%m-%d %H:%M:%S')
+    @staticmethod
+    def dump_time(t):
+        return t.strftime('%Y-%m-%d %H:%M:%S')
 
 
-def rand_string_wrapper(length):
-    def rand_string():
+    @staticmethod
+    def rand_string_wrapper(length):
+        def rand_string():
+            letters = string.ascii_lowercase
+            return ''.join(random.choice(letters) for i in range(length))
+        return rand_string    
+
+
+    @staticmethod
+    def get_children(base_post, sort_by_date=True):
+        children = []
+
+        def append_children(parent_post):
+            for child_post in parent_post.children:
+                children.append(child_post)
+                append_children(child_post)
+
+        append_children(base_post)
+
+        if sort_by_date:
+            children = sorted(children, key=lambda post: post.created)
+
+        return children
+
+
+    @staticmethod
+    def rand_string(length):
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for i in range(length))
-    return rand_string    
 
 
-def get_children(base_post, sort_by_date=True):
-    children = []
-
-    def append_children(parent_post):
-        for child_post in parent_post.children:
-            children.append(child_post)
-            append_children(child_post)
-
-    append_children(base_post)
-
-    if sort_by_date:
-        children = sorted(children, key=lambda post: post.created)
-
-    return children
+    @staticmethod
+    def hash_password(login, password):
+        return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
 
 
-def rand_string(length):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
+    @staticmethod
+    def get_file_size(filename):
+        ls_process = subprocess.Popen(['ls', '-lh', filename], stdout=subprocess.PIPE)
+        awk_process = subprocess.Popen(['awk', '{print $5}'], stdin=ls_process.stdout, stdout=subprocess.PIPE)
+        output, error = awk_process.communicate()
+
+        if error:
+            raise ValueError()
+        return output.decode('utf-8')[:-1]
 
 
-def hash_password(login, password):
-    return hashlib.sha256((password + login + Config.SALT).encode('utf-8')).hexdigest()
+    @staticmethod
+    def get_file_resolution(filename):
+        bash_command = "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 %s" % (filename)
+        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+        if error:
+            raise ValueError()
+        return output.decode('utf-8')[:-1]
 
 
-def get_file_size(filename):
-    ls_process = subprocess.Popen(['ls', '-lh', filename], stdout=subprocess.PIPE)
-    awk_process = subprocess.Popen(['awk', '{print $5}'], stdin=ls_process.stdout, stdout=subprocess.PIPE)
-    output, error = awk_process.communicate()
+    @staticmethod
+    def get_video_length(filename):
+        bash_command = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 %s" % (filename)
+        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
 
-    if error:
-        raise ValueError()
-    return output.decode('utf-8')[:-1]
+        if error:
+            raise ValueError()
+        return output.decode('utf-8')[:-1]
 
-
-def get_file_resolution(filename):
-    bash_command = "ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 %s" % (filename)
-    process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
-    output, error = process.communicate()
-
-    if error:
-        raise ValueError()
-    return output.decode('utf-8')[:-1]
-
-
-def get_ext(filename):
-    return os.path.splitext(filename)[1][1:]
+    def get_ext(filename):
+        return os.path.splitext(filename)[1][1:]

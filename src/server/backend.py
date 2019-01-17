@@ -7,22 +7,21 @@ from flask import Flask, render_template, send_from_directory, request, jsonify,
 from config import Config
 from src.database import db
 from src.database import  User, Post, Board, Permission, Session, FileTracker, get_thread_post, FileRefference
-from src.utils import GENESIS_POST_ID, rand_string, hash_password
-from src.engine import register_user, login_user, associate_with_post, get_board_by_short, get_last_upload_id
-from src.server.utils import check_query_args, get_user, session_checker, errors_handler
-from src.utils import get_ext
+from src.utils import Utils
+from src.server.utils import Utils as ServerUtils
+from src.engine import Engine
 
 app = Blueprint('backend', __name__, template_folder=Config.TEMPLATES_DIR)
 
 
 @app.route('/authentication')
-@check_query_args({'login', 'password'})
+@ServerUtils.check_query_args({'login', 'password'})
 def uthentication_handle():
     login = request.args.get('login')
     password = request.args.get('password')
 
     try:
-        session_id, session_token = login_user(login, password, request.remote_addr, request.headers.get('User-Agent'))
+        session_id, session_token = Engine.login_user(login, password, request.remote_addr, request.headers.get('User-Agent'))
     except ValueError as err:
         return redirect(f'/login?err={str(err)}')
 
@@ -33,13 +32,13 @@ def uthentication_handle():
 
 
 @app.route('/register')
-@check_query_args({'login', 'password'})
+@ServerUtils.check_query_args({'login', 'password'})
 def register_handle():
     login = request.args.get('login')
     password = request.args.get('password')
 
     try:
-        register_user(login, password)
+        Engine.register_user(login, password)
     except ValueError as err:
         return redirect(f'/registration?err={str(err)}')
     else:
@@ -47,7 +46,7 @@ def register_handle():
 
 
 @app.route('/logout')
-@session_checker()
+@ServerUtils.session_checker()
 def logout_handle():
     response = make_response(redirect('/login'))
     response.set_cookie('session_id', str(-1).encode('utf-8'))
@@ -56,10 +55,10 @@ def logout_handle():
 
 
 @app.route('/<board_short>/make_post')
-@check_query_args({'parent_post_id', 'head', 'body', 'files'})
-@session_checker()
+@ServerUtils.check_query_args({'parent_post_id', 'head', 'body', 'files'})
+@ServerUtils.session_checker()
 def board_make_post_handle(board_short):
-    board = get_board_by_short(board_short)
+    board = Engine.get_board_by_short(board_short)
     parent_post_id = int(request.args.get('parent_post_id'))
     body = request.args.get('body')
     head = request.args.get('head')
@@ -88,15 +87,15 @@ def board_make_post_handle(board_short):
     db.session.add(new_post)
     db.session.commit()
 
-    associate_with_post(files, new_post)
+    Engine.associate_with_post(files, new_post)
 
     thread_post = get_thread_post(new_post)
     return redirect(f'/{board.short}/thread/{thread_post.id}')
 
 """
 @app.route('/<board_short>/make_thread_post')
-@check_query_args({'head', 'body'})
-@session_checker()
+@ServerUtils.check_query_args({'head', 'body'})
+@ServerUtils.session_checker()
 def board_make_thred_post(board_short):
     current_board = Board.query.filter_by(  
         short=board_short
@@ -122,7 +121,7 @@ def board_make_thred_post(board_short):
     db.session.add(new_post)
     db.session.commit()
 
-    associate_with_post(files, new_post)
+    Engine.associate_with_post(files, new_post)
 
     return redirect(f'/{current_board.short}')
 """
@@ -200,8 +199,8 @@ def upload_handle(board_short):
             'Response': 'ERR'
         })
 
-    file_id = get_last_upload_id() + 1
-    file_ext = get_ext(file.filename)
+    file_id = Engine.get_last_upload_id() + 1
+    file_ext = Utils.get_ext(file.filename)
     save_path = os.path.join(Config.FLASK_CONFIG.get("UPLOAD_FOLDER"), f"{file_id}.{file_ext}")
     file.save(save_path)
 
