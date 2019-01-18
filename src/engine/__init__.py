@@ -161,22 +161,22 @@ class Engine:
         if file_ext not in (Utils.VIDEOS_EXTS + Utils.IMAGES_EXTS):
             raise ValueError()
 
-        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], f"{file_id}.{file_ext}")        
+        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (file_id, file_ext))        
         try:
             file.save(save_path)
         except Exception as exc:
             raise exc 
 
         preview = save_path
-        info = f"{Utils.get_file_size(save_path)}b, {Utils.get_file_resolution(save_path)}px"
+        info = "%sb, %spx" % (Utils.get_file_size(save_path), Utils.get_file_resolution(save_path))
         if file_ext in Utils.VIDEOS_EXTS:
-            new_preview = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], f"{file_id}_preview.png") 
+            new_preview = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s_preview.png" % (file_id)) 
             try:
                 Utils.cut_first_frame(save_path, new_preview)
             except Exception as exc:
                 raise exc
             preview = new_preview
-            info = info + f", {Utils.get_video_length(save_path)}s"
+            info = info + ", %ss" % (Utils.get_video_length(save_path))
 
         filetracker = FileTracker(
             ext=file_ext,

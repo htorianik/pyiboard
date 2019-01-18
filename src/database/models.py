@@ -178,16 +178,16 @@ class FileTracker(db.Model):
 
     def to_filename(self, full=False):
         if full:
-            return f"/{self.board.short}/files/{str(self.id)}.{self.ext}"
+            return "/%s/files/%s.%s" % (self.board.short, self.id, self.ext)
         else:
-            return f"{str(self.id)}.{self.ext}"
+            return "{%s.%s" % (self.id, self.ext)
 
     def preview_path(self, full=False):
         if self.ext in Utils.VIDEOS_EXTS:
             if full:
-                return f"/{self.board.short}/files/{str(self.id)}_preview.png"
+                return "/%s/files/%s_preview.png" % (self.board.short, self.id)
             else:
-                return f"{str(self.id)}_preview.png"
+                return "%s_preview.png" % (self.id)
         else:
             return self.to_filename(full=full)
 

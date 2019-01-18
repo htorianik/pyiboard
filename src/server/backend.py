@@ -23,7 +23,7 @@ def uthentication_handle():
     try:
         session_id, session_token = Engine.login_user(login, password, request.remote_addr, request.headers.get('User-Agent'))
     except ValueError as err:
-        return redirect(f'/login?err={str(err)}')
+        return redirect('/login?err=%s' % (str(err)))
 
     response = make_response(redirect('/'))
     response.set_cookie('session_id', str(session_id).encode('utf-8'))
@@ -40,9 +40,9 @@ def register_handle():
     try:
         Engine.register_user(login, password)
     except ValueError as err:
-        return redirect(f'/registration?err={str(err)}')
+        return redirect('/registration?err=%s' % (str(err)))
     else:
-        return redirect(f'/authentication?login={login}&password={password}')
+        return redirect('/authentication?login=%s&password=%s' % (login, password))
 
 
 @app.route('/logout')
@@ -90,7 +90,7 @@ def board_make_post_handle(board_short):
     Engine.associate_with_post(files, new_post)
 
     thread_post = get_thread_post(new_post)
-    return redirect(f'/{board.short}/thread/{thread_post.id}')
+    return redirect('/%s/thread/%s' % (board.short, thread_post.id))
 
 """
 @app.route('/<board_short>/make_thread_post')
@@ -123,7 +123,7 @@ def board_make_thred_post(board_short):
 
     Engine.associate_with_post(files, new_post)
 
-    return redirect(f'/{current_board.short}')
+    return redirect('/%s' % (current_board.short))
 """
 
 @app.route('/public/<path:filename>')
