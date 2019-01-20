@@ -158,7 +158,7 @@ class Engine:
 
         print("EXT: ", file_ext)
 
-        if file_ext not in (Utils.VIDEOS_EXTS + Utils.IMAGES_EXTS):
+        if file_ext not in (Utils.VIDEOS_EXTS + Utils.IMAGES_EXTS + Utils.MUSICS_EXTS):
             raise ValueError()
 
         save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (file_id, file_ext))        

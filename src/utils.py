@@ -1,4 +1,5 @@
 from functools import wraps
+from shutil import copyfile
 import datetime
 import hashlib
 import string
@@ -13,6 +14,7 @@ class Utils:
 
     VIDEOS_EXTS = ['mp4', 'webm', 'avi', 'mov', 'wmv']
     IMAGES_EXTS = ['jpeg', 'jpg', 'png', 'bmp', 'gif']
+    MUSICS_EXTS = ['wav', 'pm3', 'wma', 'ogg', 'flac']
 
     @staticmethod
     def dump_time(t):
@@ -78,6 +80,7 @@ class Utils:
 
 
     @staticmethod
+    # It also can calc length of music! But idk how :\
     def get_video_length(filename):
         bash_command = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 %s" % (filename)
         process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
@@ -97,6 +100,11 @@ class Utils:
         if error:
             raise ValueError()
 
+
+    @staticmethod
+    def copy_file(src, dst):
+        copyfile(src, dst)
+        
 
     @staticmethod
     def get_ext(filename):

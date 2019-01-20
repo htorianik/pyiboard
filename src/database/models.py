@@ -183,7 +183,9 @@ class FileTracker(db.Model):
             return "{%s.%s" % (self.id, self.ext)
 
     def preview_path(self, full=False):
-        if self.ext in Utils.VIDEOS_EXTS:
+        if self.ext in Utils.MUSICS_EXTS:
+            return '/public/board-images/music-preview.png'
+        elif self.ext in Utils.VIDEOS_EXTS:
             if full:
                 return "/%s/files/%s_preview.png" % (self.board.short, self.id)
             else:

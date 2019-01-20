@@ -10,11 +10,12 @@ class Config:
     VAR_DIR = os.path.join(PROJECT_ROOT_DIR, 'var')
     
     SALT = 'VfXR7TaGqF34bj1Z'
-
     HOST = 'localhost'
     PORT = 5000
     URL = 'localhost:5000'
 
+    MUSIC_RREVIEW_PATH = os.path.join(os.path.join(PUBLIC_DIR, 'board-images'), 'music-preview.png')
+    
     FLASK_CONFIG = {
         'TESTING': True, 
         'FLASK_ENV': "development",
