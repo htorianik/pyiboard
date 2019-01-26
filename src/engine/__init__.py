@@ -140,6 +140,44 @@ class Engine:
 
 
     @staticmethod
+    def save_image(file, id, ext):
+        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext))  
+        file.save(save_path)
+        info = "Image - %sb, %spx" % (
+            Utils.get_file_size(save_path),
+            Utils.get_file_resolution(save_path)
+        )
+        return save_path, save_path, info
+
+
+    @staticmethod
+    def save_video(file, id, ext):
+        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext))  
+        preview_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s_preview.png" % (id)) 
+        file.save(save_path)
+        Utils.cut_first_frame(save_path, preview_path)
+        info = "Video - %sb, %spx, %ss" % (
+            Utils.get_file_size(save_path),
+            Urils.get_file_resolution(save_path),
+            Utils.get_media_length(save_path)
+        )
+        return save_path, preview_path, info
+
+
+    @staticmethod
+    def save_music(file, id, ext):
+        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext)) 
+        preview_path = Config.MUSIC_RREVIEW_PATH
+        file.save(save_path)
+        info = "Audio - %sb, %spx, %ss" % (
+            Utils.get_file_size(save_path),
+            Urils.get_file_resolution(save_path),
+            Utils.get_media_length(save_path)
+        )
+        return save_path, preview_path, info
+        
+
+    @staticmethod
     def upload_file(files, board_short):
         file = files.get('file')
 
@@ -150,45 +188,31 @@ class Engine:
         if not board:
             raise ValueError()
 
-        print("NOW WE WILL CALC EXT")
-
         filename = file.filename
         file_id = Engine.get_last_upload_id() + 1
         file_ext = Utils.get_ext(filename)
 
-        print("EXT: ", file_ext)
-
-        if file_ext not in (Utils.VIDEOS_EXTS + Utils.IMAGES_EXTS + Utils.MUSICS_EXTS):
-            raise ValueError()
-
-        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (file_id, file_ext))        
-        try:
-            file.save(save_path)
-        except Exception as exc:
-            raise exc 
-
-        preview = save_path
-        info = "%sb, %spx" % (Utils.get_file_size(save_path), Utils.get_file_resolution(save_path))
+        file_path = None
+        preview_path = None 
+        info = None
         if file_ext in Utils.VIDEOS_EXTS:
-            new_preview = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s_preview.png" % (file_id)) 
-            try:
-                Utils.cut_first_frame(save_path, new_preview)
-            except Exception as exc:
-                raise exc
-            preview = new_preview
-            info = info + ", %ss" % (Utils.get_video_length(save_path))
+            file_path, preview_path, info = Engine.save_video(file, file_id, file_ext)
+        elif file_ext in Utils.IMAGES_EXTS:
+            file_path, preview_path, info = Engine.save_image(file, file_id, file_ext)
+        elif file_ext in Utils.MUSICS_EXTS:
+            file_path, preview_path, info = Engine.save_music(file, file_id, file_ext)
 
         filetracker = FileTracker(
-            ext=file_ext,
+            file_path=file_path,
+            preview_path=preview_path,
             info=info,
             board=board
         )
-
         db.session.add(filetracker)
         db.session.commit()
 
         return {
-            'filename': filetracker.to_filename(full=True),
+            'filename': filetracker.file_path,
             'id': filetracker.id
         }
 

@@ -3,3 +3,4 @@ var/
 __pycache__
 
 uploads/*
+resources/uploads/*

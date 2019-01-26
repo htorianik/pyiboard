@@ -81,7 +81,7 @@ class Utils:
 
     @staticmethod
     # It also can calc length of music! But idk how :\
-    def get_video_length(filename):
+    def get_media_length(filename):
         bash_command = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 %s" % (filename)
         process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
         output, error = process.communicate()

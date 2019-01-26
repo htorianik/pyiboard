@@ -4,8 +4,9 @@ import os
 class Config:
 
     PROJECT_ROOT_DIR = os.path.dirname( os.path.abspath(__file__) )
-    PUBLIC_DIR = os.path.join(PROJECT_ROOT_DIR, 'public')
-    UPLOAD_DIR = os.path.join(PROJECT_ROOT_DIR, 'uploads')
+    RESOURCES_DIR = os.path.join(PROJECT_ROOT_DIR, 'resources')
+    PUBLIC_DIR = os.path.join(RESOURCES_DIR, 'public')
+    UPLOAD_DIR = os.path.join(RESOURCES_DIR, 'uploads')
     TEMPLATES_DIR = os.path.join(PROJECT_ROOT_DIR, 'templates')
     VAR_DIR = os.path.join(PROJECT_ROOT_DIR, 'var')
     

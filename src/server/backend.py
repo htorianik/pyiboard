@@ -126,7 +126,7 @@ def board_make_thred_post(board_short):
     return redirect('/%s' % (current_board.short))
 """
 
-@app.route('/public/<path:filename>')
+@app.route('/files/public/<path:filename>')
 def public_handle(filename):
     return send_from_directory(
         Config.PUBLIC_DIR, 
@@ -134,7 +134,7 @@ def public_handle(filename):
         as_attachment=True)
 
 
-@app.route('/<board_short>/files/<path:filename>')
+@app.route('/files/uploads/<path:filename>')
 def files_handle(filename, board_short):
     return send_from_directory(
         Config.UPLOAD_DIR,

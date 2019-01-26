@@ -156,49 +156,18 @@ class Session(db.Model):
 class FileTracker(db.Model):
     __tablename__ = 'filetracker'
     id = db.Column(db.Integer, primary_key=True)
-    ext = db.Column(db.String(32))
-    uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
+    file_path = db.Column(db.String(256))
+    preview_path = db.Column(db.String(256))
     info = db.Column(db.String(256))
+    uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='files')
-    uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
-
-    @staticmethod
-    def save_and_create(file, board):
-        pass
-
-    @staticmethod
-    def create_from_file(path, board):
-        return FileTracker(
-            ext=Utils.get_ext(path),
-            board=board,
-            resolution=Utils.get_file_resolution(path),
-            size=Utils.get_file_size(path)   
-        )
-
-    def to_filename(self, full=False):
-        if full:
-            return "/%s/files/%s.%s" % (self.board.short, self.id, self.ext)
-        else:
-            return "{%s.%s" % (self.id, self.ext)
-
-    def preview_path(self, full=False):
-        if self.ext in Utils.MUSICS_EXTS:
-            return '/public/board-images/music-preview.png'
-        elif self.ext in Utils.VIDEOS_EXTS:
-            if full:
-                return "/%s/files/%s_preview.png" % (self.board.short, self.id)
-            else:
-                return "%s_preview.png" % (self.id)
-        else:
-            return self.to_filename(full=full)
 
     def dump_to_dict(self, full=False):
         return {
             'id': self.id,
-            'path': self.to_filename(full=full),
-            'preview_path': self.preview_path(full=full),
+            'file_path': self.file_path,
+            'preview_path': self.preview_path,
             'info': self.info,
-            'ext': self.ext,
             'uploaded': Utils.dump_time(self.uploaded)
         }

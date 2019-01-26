@@ -2,14 +2,14 @@
 
 {% block requirements %}
     {{ super() }}
-    <link rel='stylesheet' type='text/css' href='/public/styles/post.css'>
-    <link rel='stylesheet' type='text/css' href='/public/styles/board.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/post.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/board.css'>
 {% endblock %}
 
 {% block content %}
     <div id='board'>
         <div id='board-title'>/{{ current_board.short }}/ - {{ current_board.title }}</div>
-        <img id='board-pic' src='/public/board-images/{{ current_board.short }}.gif'>
+        <img id='board-pic' src='/files/public/board-images/{{ current_board.short }}.gif'>
         <div id='new-thread-btn'>
             <a href='/{{ current_board.short }}/post_constructor?parent_post_id=1'>[Создать тред]</a>
         </div>
@@ -57,7 +57,7 @@
                                 {{ file.id }}.{{ file.ext }} ({{ file.info }})
                             </span>
                             <span>
-                                <a href='{{ file.path }}'>
+                                <a href='{{ file.file_path }}'>
                                     <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
                                 </a> 
                             </span>
@@ -108,7 +108,7 @@
                                 <span class='file-info'>
                                     {{ file.id }}.{{ file.ext }} ({{ file.info }})
                                 </span>
-                                <a href='{{ file.path }}'>
+                                <a href='{{ file.file_path }}'>
                                     <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
                                 </a> 
                             </div>
