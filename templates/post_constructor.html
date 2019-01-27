@@ -2,24 +2,25 @@
 
 {% block requirements %}
     <link rel='stylesheet' type='text/css' href='/files/public/styles/button.css'>
-    <link rel='stylesheet' type='text/css' href='/files/public/styles/constructor.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/post.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/post_constructor.css'>
     <script type='text/javascript' src='/files/public/scripts/post_constructor.js'></script>
 {% endblock %}
 
 {% block content %}
-    <div class='creating-form'>
-        <div class='field-title'> Заголовок </div>
-        <input class='head-field' id='head-field' type='text'>
-        <div class='field-title'> Тело поста </div>
-        <textarea class='body-field' id='body-field'></textarea>
+    <div id='post-constructor'>
+        <div id='head'>Заголовок</div>
+        <input id='head-input' type='text'>
+        <div id='body'>Тело</div>
+        <textarea id='body-input'></textarea>
+        <div id='files-input'>
+            <input type='file' id='file-input'>
+            <input type='button' id='upload-btn' value='Загрузить файл'>
+            <div><h1>Прикрепленные файлы:</h1></div>
+            <div id='uploaded-files'>
 
-        <input type='file' class='midnight-blue-flat-button' id='file-field'>
-
-        <div class='files-area' id='files-area'>
+            </div>
         </div>
-
-        <div id='chosen-files'></div>
-
-        <input class='midnight-blue-flat-button submit-button' id='submit-button' type='button' value='Отправить'>
+        <div id='submit-button-wrapper'><input type='button' id='submit-button' value='Отправить'></div>
     </div>
 {% endblock %}

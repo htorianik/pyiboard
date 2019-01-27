@@ -1,0 +1,68 @@
+#post-constructor {
+    display: grid;
+    width: 100%;
+    grid-template-rows: 30px 50px 30px 400px auto 150px;
+    grid-template-columns: 100%;
+    grid-template-areas: 
+    "head"
+    "head-input"
+    "body"
+    "body-input"
+    "files-input"
+    "sumbit-button";
+}
+
+#body, #head {
+    justify-self: center;
+    font-size: 24px;
+}
+
+#head-input {
+    font-size: 24px;
+}
+
+#body-input {
+    font-size: 20px;
+}
+
+#files-input {
+    margin-top: 40px;
+    justify-self: center;
+    justify-content: center;
+}
+
+#files-input h1 {
+    justify-self: center;
+    font-size: 20px;
+}
+
+#uploaded-files {
+    display: grid;
+    grid-row-gap: 10px;
+}
+
+.uploaded-file {
+    display: grid;
+    grid-template-columns: 200px 20px 300px;
+    grid-template-areas: 
+    "preview . info";
+}
+
+.uploaded-file-preview img {
+    width: 200px;
+}
+
+.uploaded-file-info input {
+    margin-top: 5px;
+    width: 100%;
+}
+
+#submit-button-wrapper {
+    justify-self: center;
+    margin-top: 80px;
+}
+
+#submit-button {
+    justify-self: center;
+    font-size: 30px;
+}

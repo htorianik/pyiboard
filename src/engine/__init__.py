@@ -215,10 +215,7 @@ class Engine:
         db.session.add(filetracker)
         db.session.commit()
 
-        return {
-            'filename': filetracker.file_path,
-            'id': filetracker.id
-        }
+        return filetracker.dump_to_dict()
 
         
 

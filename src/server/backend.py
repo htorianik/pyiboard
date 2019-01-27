@@ -154,7 +154,7 @@ get size of any file:
 def upload_handle(board_short):
     filedata = None
     try:
-        filedata = Engine.upload_file(request.files, board_short)
+        filetracker = Engine.upload_file(request.files, board_short)
     except Exception as exc:
         raise exc
         return jsonify({
@@ -162,7 +162,7 @@ def upload_handle(board_short):
         })
 
     res = {
-        'Response': 'OK'
+        'Response': 'OK',
+        'file': filetracker
     }
-    res.update(filedata)
     return jsonify(res)
