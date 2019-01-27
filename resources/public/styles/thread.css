@@ -1,0 +1,45 @@
+#board {
+    display: grid;
+    grid-template-rows: 50px 50px 50px 30px auto;
+
+    grid-template-areas: 
+    "title"
+    "back-to-board-btn"
+    "reply-to-thread-btn"
+    "."
+    "posts"
+}
+
+
+#back-to-board-btn, #reply-to-thread-btn, #thread-title {
+    font-size: 24px;
+    justify-self: center;
+    align-self: center;
+}
+
+
+#posts {
+    grid-area: posts;
+    display: grid;
+    grid-row-gap: 15px;
+}
+
+.thread {
+    display: grid;
+    grid-row-gap: 15px;
+    grid-template-columns: 25px 25px auto 25px;
+    grid-template-areas: 
+    ". thread-post thread-post ."
+    ". .           child-posts ."
+}
+
+.thread-post {
+    grid-area: thread-post
+}
+
+.child-posts {
+    grid-area: child-posts;
+    display: grid;
+    grid-row-gap: 15px;
+    grid-template-rows: auto;
+}

@@ -3,16 +3,24 @@
 {% block requirements %}
     {{ super() }}
     <link rel='stylesheet' type='text/css' href='/files/public/styles/post.css'>
-    <link rel='stylesheet' type='text/css' href='/files/public/styles/board.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/thread.css'>
 {% endblock %}
 
 {% block content %}
     <div id='board'>
-        <div id='board-title'>/{{ current_board.short }}/ - {{ current_board.title }}</div>
-        <img id='board-pic' src='/files/public/board-images/{{ current_board.short }}.gif'>
-        <div id='new-thread-btn'>
-            <a href='/{{ current_board.short }}/post_constructor?parent_post_id=1'>[Создать тред]</a>
+        <div id='thread-title'>
+            тред#{{ posts[0].id }}
         </div>
+
+        <div id='back-to-board-btn'>
+            <a href='/{{ current_board.short }}'>[Обратно на доску]</a>
+        </div>
+
+        <div id='reply-to-thread-btn'>
+            <a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ posts[0].id }}'>[Ответь в тред]</a>
+        </div>
+
+        <div></div>
 
         <div id = posts>
         {% for post in posts %}
