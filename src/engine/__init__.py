@@ -141,40 +141,38 @@ class Engine:
 
     @staticmethod
     def save_image(file, id, ext):
-        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext))  
-        file.save(save_path)
+        files_local_path, files_route = Utils.mark_resource("uploads/%s.%s" % (id, ext))
+        file.save(files_local_path)
         info = "Image - %sb, %spx" % (
-            Utils.get_file_size(save_path),
-            Utils.get_file_resolution(save_path)
+            Utils.get_file_size(files_local_path),
+            Utils.get_file_resolution(files_local_path)
         )
-        return save_path, save_path, info
+        return files_route, files_route, info
 
 
     @staticmethod
     def save_video(file, id, ext):
-        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext))  
-        preview_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s_preview.png" % (id)) 
-        file.save(save_path)
-        Utils.cut_first_frame(save_path, preview_path)
+        files_local_path, files_route = Utils.mark_resource("uploads/%s.%s" % (id, ext))
+        previews_local_path, previews_route = Utils.mark_resource("uploads/%s_preview.png" % (id))
+        file.save(files_local_path)
+        Utils.cut_first_frame(files_local_path, previews_local_path)
         info = "Video - %sb, %spx, %ss" % (
-            Utils.get_file_size(save_path),
-            Urils.get_file_resolution(save_path),
-            Utils.get_media_length(save_path)
+            Utils.get_file_size(files_local_path),
+            Utils.get_file_resolution(files_local_path),
+            Utils.get_media_length(files_local_path)
         )
-        return save_path, preview_path, info
+        return files_route, previews_route, info
 
 
     @staticmethod
     def save_music(file, id, ext):
-        save_path = os.path.join(Config.FLASK_CONFIG["UPLOAD_FOLDER"], "%s.%s" % (id, ext)) 
-        preview_path = Config.MUSIC_RREVIEW_PATH
-        file.save(save_path)
-        info = "Audio - %sb, %spx, %ss" % (
-            Utils.get_file_size(save_path),
-            Urils.get_file_resolution(save_path),
-            Utils.get_media_length(save_path)
+        files_local_path, files_route = Utils.mark_resource("uploads/%s.%s" % (id, ext))
+        file.save(files_local_path)
+        info = "Video - %sb, %ss" % (
+            Utils.get_file_size(files_local_path),
+            Utils.get_media_length(files_local_path)
         )
-        return save_path, preview_path, info
+        return files_route, Config.AUDIO_FILES_PREVIEWS_ROUTE, info
         
 
     @staticmethod
@@ -206,7 +204,8 @@ class Engine:
             file_path=file_path,
             preview_path=preview_path,
             info=info,
-            board=board
+            board=board,
+            ext=file_ext
         )
         db.session.add(filetracker)
         db.session.commit()

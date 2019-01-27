@@ -10,6 +10,10 @@ class Config:
     TEMPLATES_DIR = os.path.join(PROJECT_ROOT_DIR, 'templates')
     VAR_DIR = os.path.join(PROJECT_ROOT_DIR, 'var')
     
+    FILES_ROUTE = '/files/'
+    PUBLIC_FILES_ROUTE = FILES_ROUTE + 'public/'
+    AUDIO_FILES_PREVIEWS_ROUTE = PUBLIC_FILES_ROUTE + 'board-images/music-preview.png' 
+
     SALT = 'VfXR7TaGqF34bj1Z'
     HOST = 'localhost'
     PORT = 5000

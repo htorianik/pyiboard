@@ -159,6 +159,7 @@ class FileTracker(db.Model):
     file_path = db.Column(db.String(256))
     preview_path = db.Column(db.String(256))
     info = db.Column(db.String(256))
+    ext = db.Column(db.String(256))
     uploaded = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     board_id = db.Column(db.Integer, db.ForeignKey('board.id'))
     board = db.relationship('Board', back_populates='files')
@@ -169,5 +170,6 @@ class FileTracker(db.Model):
             'file_path': self.file_path,
             'preview_path': self.preview_path,
             'info': self.info,
+            'ext': self.ext,
             'uploaded': Utils.dump_time(self.uploaded)
         }

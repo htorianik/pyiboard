@@ -109,3 +109,12 @@ class Utils:
     @staticmethod
     def get_ext(filename):
         return os.path.splitext(filename)[1][1:]
+
+
+    @staticmethod
+    def mark_resource(rel_path):
+        if rel_path[0] == '/':
+            raise ValueError("Relative path should't starts with \'/\'")
+        local_path = os.path.join(Config.RESOURCES_DIR, rel_path)
+        route = Config.FILES_ROUTE + rel_path
+        return local_path, route

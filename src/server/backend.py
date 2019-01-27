@@ -135,7 +135,7 @@ def public_handle(filename):
 
 
 @app.route('/files/uploads/<path:filename>')
-def files_handle(filename, board_short):
+def files_handle(filename):
     return send_from_directory(
         Config.UPLOAD_DIR,
         filename
