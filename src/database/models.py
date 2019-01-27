@@ -84,7 +84,7 @@ class Post(db.Model):
     created = db.Column(db.DateTime, default=datetime.datetime.today(), nullable=False)
     files = db.relationship('FileRefference')
 
-    def dump_to_dict(self, with_children=False, with_files=True, child_number=3):
+    def dump_to_dict(self, with_children=False, with_files=True, child_number=None):
         dumped = {
             'id': self.id,
             'board_id': self.board_id,

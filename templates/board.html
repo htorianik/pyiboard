@@ -17,7 +17,6 @@
         <div id = posts>
         {% for post in posts %}
         <div class='thread'>
-            <div class='post-literal'>>></div>
             <div class='post thread-post'>
                 <div class='info'>
                     <span class='head'>{{ post.head }}</span>
@@ -73,7 +72,6 @@
 
             <div class='child-posts'>
                 {% for child_post in post.children %}
-                <div class='post-literal'>>></div>
                 <div class='post child-post'>
                     <div class='info'>
                             <span class='head'>{{ child_post.head }}</span>

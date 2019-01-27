@@ -51,5 +51,4 @@
     display: grid;
     grid-row-gap: 15px;
     grid-template-rows: auto;
-    grid-template-columns: 25px auto;
 }

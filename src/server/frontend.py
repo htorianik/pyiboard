@@ -37,14 +37,12 @@ def board_handle(board_short):
 @app.route('/<board_short>/thread/<thread_post_id>')
 @ServerUtils.session_checker()
 def thread_handle(board_short, thread_post_id):
-    board = Engine.get_board_by_short(board_short)
-    thread_post = Engine.get_post_by_id(thread_post_id)
+    current_board = Engine.get_board_by_short(board_short)
     return render_template(
-        'thread.html',
-        current_board=board.dump_to_dict(),
+        'thread.html', 
+        current_board=current_board.dump_to_dict(),
         boards=Engine.get_boards_dumped(),
-        thread_post=thread_post.dump_to_dict(),
-        posts=Engine.get_posts_in_thread_dumped(thread_post)
+        posts=[Engine.get_thread_dumped(current_board, thread_post_id)]
     )
 
 

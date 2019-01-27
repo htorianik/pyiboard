@@ -3,42 +3,147 @@
 {% block requirements %}
     {{ super() }}
     <link rel='stylesheet' type='text/css' href='/files/public/styles/post.css'>
-    <link rel='stylesheet' type='text/css' href='/files/public/styles/thread.css'>
+    <link rel='stylesheet' type='text/css' href='/files/public/styles/board.css'>
 {% endblock %}
 
 {% block content %}
-    <div class='title-link'>
-        <a href='/{{ current_board.short }}'>[Обратно на доску]</a>
-    </div>
-
-    <div class='title-link'>
-        <a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ thread_post.id }}'>[Ответить в тред]</a>
-    </div>
-
-    <div class='post'>
-        <a class='post-label'>>></a><div class='inline'>{{ thread_post.head }} | </div>
-        <div class='inline'>{{ thread_post.created }} | </div>
-        <div class='inline'>пост но. {{ thread_post.id }} | </div>
-        <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ thread_post.id }}'>[ответить]</a></div>
-        {% for child_id in thread_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
-        <div class='files'>{% for filename in thread_post.files %} <img href='{{ filename }}' class='file'> {% endfor %}</div>
-        <div class='body'>
-            {{ thread_post.body }}
+    <div id='board'>
+        <div id='board-title'>/{{ current_board.short }}/ - {{ current_board.title }}</div>
+        <img id='board-pic' src='/files/public/board-images/{{ current_board.short }}.gif'>
+        <div id='new-thread-btn'>
+            <a href='/{{ current_board.short }}/post_constructor?parent_post_id=1'>[Создать тред]</a>
         </div>
-    </div>
 
-    {% for post in posts %}
-        <div class='child-post'>
-            <a class='post-label'>>></a><div class='inline'>{{ post.head }} | </div>
-            <div class='inline'>{{ post.created }} | </div>
-            <div class='inline'>пост но. {{ post.id }} | </div>
-            <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>[ответить]</a></div>
-            {% for child_id in post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
-            <div class='files'>{% for filename in post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
-            <div class='body'>
-                <a href='#'>>>{{ post.parent_id }}</a><br>
-                {{ post.body }}
+        <div id = posts>
+        {% for post in posts %}
+        <div class='thread'>
+            <div class='post thread-post'>
+                <div class='info'>
+                    <span class='head'>{{ post.head }}</span>
+                    <span class='created'>{{ post.created }}</span>
+                    <span class='number'>пост но. {{ post.id }}</span>
+                    <span class='to-thread'>
+                        <a href='/{{ current_board.short }}/thread/{{ post.id }}'>
+                            [к треду]
+                        </a>
+                    </span>
+                    <span class='reply'>
+                        <a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ post.id }}'>
+                            [ответить]
+                        </a>
+                    </span>
+                    <span class='replies'>
+                        {% for child_id in post.children_ids %}
+                        <a href='#' class='reply-ref'>
+                            [>>{{ child_id }}]
+                        </a>
+                        {% endfor %}
+                    </span>
+                </div>
+                <div class='
+                    {% if post.files|length == 0 %}
+                        body-no-files
+                    {% elif post.files|length == 1 %}
+                        body-one-file
+                    {% else %}
+                        body-many-files
+                    {% endif %}
+                '>
+                    <div class='body-files'>
+                    {% for file in post.files %} 
+                        <div class='body-file'>
+                            <span class='file-info'>
+                                {{ file.id }}.{{ file.ext }} ({{ file.info }})
+                            </span>
+                            <span>
+                                <a href='{{ file.file_path }}'>
+                                    <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
+                                </a> 
+                            </span>
+                        </div>
+                    {% endfor %}
+                    </div>
+
+                    <div class='body-text'>
+                        {{ post.body }}
+                    </div>
+                </div>
+            </div>
+
+            <div class='child-posts'>
+                {% for child_post in post.children %}
+                <div class='post child-post'>
+                    <div class='info'>
+                            <span class='head'>{{ child_post.head }}</span>
+                            <span class='created'>{{ child_post.created }}</span>
+                            <span class='number'>пост но. {{ child_post.id }}</span>
+                            <span class='reply'>
+                                <a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>
+                                    [ответить]
+                                </a>
+                            </span>
+                            <span class='replies'>
+                                {% for child_id in child_post.children_ids %}
+                                <a href='#' class='reply-ref'>
+                                    [>>{{ child_id }}]
+                                </a>
+                                {% endfor %}
+                            </span>
+                    </div>
+                    <div class='
+                        {% if child_post.files|length == 0 %}
+                            body-no-files
+                        {% elif child_post.files|length == 1 %}
+                            body-one-file
+                        {% else %}
+                            body-many-files
+                        {% endif %}
+                    '>
+                        
+                        <div class='body-files'>
+                        {% for file in child_post.files %} 
+                            <div class='body-file'>
+                                <span class='file-info'>
+                                    {{ file.id }}.{{ file.ext }} ({{ file.info }})
+                                </span>
+                                <a href='{{ file.file_path }}'>
+                                    <img class='body-file-img' src='{{ file.preview_path }}' class='file'>
+                                </a> 
+                            </div>
+                        {% endfor %}
+                        </div>
+
+                        <div class='body-text'>
+                            <div class='parent-ref'>
+                                Ответ на 
+                                <a href='#'>
+                                    [>>{{ child_post.parent_id }}]
+                                </a>
+                                :
+                            </div>
+                            {{ child_post.body }}
+                        </div>
+                    </div>
+                    <!--
+                    <div class='inline'>{{ child_post.head }} | </div>
+                    <div class='inline'>{{ child_post.created }} | </div>
+                    <div class='inline'>пост но. {{ child_post.id }} | </div>
+                    <div class='inline'><a href='/{{ current_board.short }}/post_constructor?parent_post_id={{ child_post.id }}'>[ответить]</a></div>
+                    {% for child_id in child_post.children_ids %}<a href='#' class='child-id inline'>[>>{{ child_id }}]</a>{% endfor %}
+                    <div class='files'>{% for filename in child_post.files %} <a href='{{ filename }}'><img src='{{ filename }}' class='file'></a> {% endfor %}</div>
+                    <div class='body'>
+                        <a href='#'>>>{{ child_post.parent_id }}</a><br>
+                        {{ child_post.body }}
+                    </div>
+                    -->
+                </div>
+                {% endfor %}
+                <div>
+                    <!-- ЭТО КОСТЫЛЬ ДЛЯ КРАСИВЫХ ПРОБЕЛОВ. НЕ ТРОГАТЬ... -->
+                </div>
             </div>
         </div>
-    {% endfor %}
+        {% endfor %}
+        </div>
+    </div>
 {% endblock %}

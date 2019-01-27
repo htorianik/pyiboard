@@ -105,6 +105,11 @@ class Engine:
             ).all()
         ))
 
+    
+    @staticmethod
+    def get_thread_dumped(board, id):
+        return Post.query.filter_by(id=id, board=board).first().dump_to_dict(with_children=True)
+
 
     @staticmethod
     def get_boards_dumped():
