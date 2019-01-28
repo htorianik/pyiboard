@@ -14,49 +14,9 @@ from src.engine import Engine
 app = Blueprint('backend', __name__, template_folder=Config.TEMPLATES_DIR)
 
 
-@app.route('/authentication')
-@ServerUtils.check_query_args({'login', 'password'})
-def uthentication_handle():
-    login = request.args.get('login')
-    password = request.args.get('password')
-
-    try:
-        session_id, session_token = Engine.login_user(login, password, request.remote_addr, request.headers.get('User-Agent'))
-    except ValueError as err:
-        return redirect('/login?err=%s' % (str(err)))
-
-    response = make_response(redirect('/'))
-    response.set_cookie('session_id', str(session_id).encode('utf-8'))
-    response.set_cookie('session_token', session_token.encode('utf-8'))
-    return response
-
-
-@app.route('/register')
-@ServerUtils.check_query_args({'login', 'password'})
-def register_handle():
-    login = request.args.get('login')
-    password = request.args.get('password')
-
-    try:
-        Engine.register_user(login, password)
-    except ValueError as err:
-        return redirect('/registration?err=%s' % (str(err)))
-    else:
-        return redirect('/authentication?login=%s&password=%s' % (login, password))
-
-
-@app.route('/logout')
-@ServerUtils.session_checker()
-def logout_handle():
-    response = make_response(redirect('/login'))
-    response.set_cookie('session_id', str(-1).encode('utf-8'))
-    response.set_cookie('session_token', "None".encode('utf-8'))
-    return response
-
-
 @app.route('/<board_short>/make_post')
 @ServerUtils.check_query_args({'parent_post_id', 'head', 'body', 'files'})
-@ServerUtils.session_checker()
+
 def board_make_post_handle(board_short):
     board = Engine.get_board_by_short(board_short)
     parent_post_id = int(request.args.get('parent_post_id'))
@@ -95,7 +55,7 @@ def board_make_post_handle(board_short):
 """
 @app.route('/<board_short>/make_thread_post')
 @ServerUtils.check_query_args({'head', 'body'})
-@ServerUtils.session_checker()
+
 def board_make_thred_post(board_short):
     current_board = Board.query.filter_by(  
         short=board_short

@@ -7,23 +7,11 @@ app = Blueprint('frontend', __name__, template_folder=Config.TEMPLATES_DIR)
 
 
 @app.route('/')
-@ServerUtils.session_checker()
 def index_handle():
     return render_template('index.html', boards=Engine.get_boards_dumped())
 
 
-@app.route('/registration')
-def registration_handle():
-    return render_template('registration.html', boards=Engine.get_boards_dumped())
-
-
-@app.route('/login')
-def login_handle():
-    return render_template('login.html', boards=Engine.get_boards_dumped())
-
-
 @app.route('/<board_short>')
-@ServerUtils.session_checker()
 def board_handle(board_short):
     current_board = Engine.get_board_by_short(board_short)
     return render_template(
@@ -35,7 +23,6 @@ def board_handle(board_short):
 
 
 @app.route('/<board_short>/thread/<thread_post_id>')
-@ServerUtils.session_checker()
 def thread_handle(board_short, thread_post_id):
     current_board = Engine.get_board_by_short(board_short)
     return render_template(
@@ -48,7 +35,6 @@ def thread_handle(board_short, thread_post_id):
 
 @app.route('/<board_short>/post_constructor')
 @ServerUtils.check_query_args({'parent_post_id'})
-@ServerUtils.session_checker()
 def post_constructor_handle(board_short):
     board = Engine.get_board_by_short(board_short)
     parent_post = Engine.get_post_by_id(request.args.get('parent_post_id'))
