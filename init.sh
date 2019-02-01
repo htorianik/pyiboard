@@ -2,7 +2,7 @@
 
 . ../bin/activate
 
-mkdir temp
+mkdir var
 mkdir resources/uploads
 pip install -r requirements.txt
 

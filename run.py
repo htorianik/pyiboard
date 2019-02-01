@@ -5,5 +5,10 @@ import sys
 from flask import Flask
 from src.server import app
 
-app.run(port=5000)
+try:
+    app.run(port=5000)
+except Exception as _:
+    exit(1)
+else:
+    exit(0)
 
