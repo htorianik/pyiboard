@@ -2,20 +2,13 @@
 
 import os
 import json
-
 from flask import Flask
-
 from config import Config
 from src.database import db
-from src.database import Board, Post, User
-from src.engine.utils import hash_password
-
-if not os.path.exists(Config.VAR_DIR):
-    os.makedirs(Config.VAR_DIR)
+from src.database import Board, Post
 
 fake_app = Flask(__name__)
 fake_app.config.update(Config.FLASK_CONFIG)
-
 db.init_app(fake_app)
 
 with fake_app.app_context():
@@ -31,21 +24,12 @@ with fake_app.app_context():
             title=board.get("title"),
             short=board.get("short")
         )
-
         db.session.add(new_board)
     db.session.commit()
 
     genesis_post = Post(
-        head="I Am genesis",
-        body="There should be the most secret information because site should't be able to display this post. "
-        "SECRET: SHISHKO IS THE BEST GIRL"
+        head="GENESIS_POST",
+        body="GENESIS_POST"
     )
     db.session.add(genesis_post)
-    db.session.commit()
-
-    genesis_user = User(
-        login='root',
-        pass_hash=hash_password('root', '1')
-    )
-    db.session.add(genesis_user)
     db.session.commit()
