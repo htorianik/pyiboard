@@ -1,10 +1,7 @@
 # PyIBoard v0.2.7
 This is IBs core written on Python.
 
-Demo you can see on this [video](https://google.com).
-
-[image_1](http://google.com)
-[image_2](http://google.com)
+Demo you can see on this ![video](https://raw.githubusercontent.com/D34DStone/pyiboard/master/README_resorces/board_demo.mp4).
 
 ## how to deploy me?
 ```bash
@@ -26,13 +23,14 @@ python3 run.py
 
 ## how to configurate me?
 ### resource structure
-All resources placed in ```/resources```
-```/resources/public``` -- resources that you can always get like scripts, styles, fonts 
-You should keep any kind of media in ```resources/public/board-images```
+* All resources placed in ```/resources``` 
+* You should keep any kind of media that requires your board in ```resources/public/board-images```
 
-Also there is ```/resources/uploads``` dir. This folder just for server, you should't touch it.
+* Also there is ```/resources/uploads``` dir. This folder just for server, you should't touch it.
 There is media uploaded by users.
 
 ### boards config
 There is something horrible, idk how it works. Sometimes I'll fix it.
 Generally this is instruction how to fill boards table.
+
+P.S. and ```config.py``` yoush should't touch too :)
